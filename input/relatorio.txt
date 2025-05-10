@@ -1,0 +1,9 @@
+# language: pt
+[SUCCESS]
+Quando seleciono o "<mês>" atual
+Então o sistema exibe o relatório com <total vendas>
+
+[EXAMPLES]
+| mês     | total vendas |
+| Janeiro | 1200         |
+| Março   | 950          |

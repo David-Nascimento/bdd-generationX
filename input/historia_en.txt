@@ -1,0 +1,12 @@
+# language: pt
+Como um administrador
+Quero acessar o painel de controle
+Para gerenciar os usuários
+
+[RULE]
+Apenas admins devem acessar
+
+[SUCCESS]
+Dado que estou logado como administrador
+Quando clico em "Painel de controle"
+Então vejo as opções de administração

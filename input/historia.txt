@@ -1,0 +1,17 @@
+# language: pt
+Como um gerente
+Quero gerar relatórios de desempenho
+Para acompanhar o progresso da equipe
+
+[CONTEXT]
+Dado que estou logado no sistema
+E tenho acesso à área de relatórios
+
+[SUCCESS]
+Quando seleciono o "<mês>" atual
+Então o sistema exibe o relatório com <total vendas>
+
+[EXAMPLES]
+| mês         | total vendas |
+| Janeiro     | 1200         |
+| Fevereiro   | 950          |

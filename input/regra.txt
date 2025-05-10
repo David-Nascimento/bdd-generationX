@@ -1,0 +1,11 @@
+# language: pt
+Como um gerente
+Quero gerar relatórios de desempenho
+Para acompanhar o progresso da equipe
+
+[RULE] O sistema deve validar acessos administrativos
+
+[SUCCESS]
+Dado que sou um administrador
+Quando tento acessar a página de controle
+Então o acesso é permitido

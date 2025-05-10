@@ -1,0 +1,53 @@
+# language: pt
+Como um cliente do e-commerce
+Quero adicionar produtos ao carrinho
+Para finalizar minha compra com praticidade
+
+[CONTEXT]
+Dado que estou logado na plataforma
+E tenho produtos disponíveis
+
+[REGRA]
+O carrinho não deve permitir produtos fora de estoque
+E o valor total deve refletir o desconto promocional
+
+[SUCCESS]
+Quando adiciono um produto ao carrinho
+Então ele aparece na listagem do carrinho
+
+[FAILURE]
+Quando tento adicionar um produto esgotado
+Então recebo uma mensagem de "produto indisponível"
+
+[ERROR]
+Quando o serviço de estoque estiver fora do ar
+Então exibo uma mensagem de erro técnico
+
+[EXCEPTION]
+Quando o produto estiver com dados inconsistentes
+Então o sistema deve registrar o erro e impedir a adição
+
+[VALIDATION]
+Quando tento adicionar uma quantidade negativa
+Então exibo uma mensagem de validação
+
+[PERMISSION]
+Quando um usuário não logado tenta adicionar um produto
+Então sou redirecionado para a tela de login
+
+[EDGE_CASE]
+Quando adiciono 999 unidades de um item
+Então o sistema limita automaticamente a 10 unidades
+
+[PERFORMANCE]
+Quando adiciono 100 produtos seguidos
+Então o tempo de resposta deve ser inferior a 2 segundos
+
+[EXAMPLES]
+| produto        | quantidade | total esperado |
+| Camiseta Azul  | 2          | 100            |
+| Tênis Branco   | 1          | 250            |
+
+[SUCCESS]
+Quando adiciono "<produto>" com quantidade <quantidade>
+Então vejo o total <total esperado>

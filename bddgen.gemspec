@@ -1,3 +1,5 @@
+require_relative "lib/bddgen/version"
+
 Gem::Specification.new do |spec|
   spec.name          = "bddgen"
   spec.version       = Bddgen::VERSION
@@ -14,5 +16,5 @@ Gem::Specification.new do |spec|
   spec.executables   = ["bddgen"]
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = ">= 2.7"
+  spec.required_ruby_version = ">= 3.x"
 end

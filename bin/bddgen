@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require_relative "../lib/bddgen/cli"
+
+Bddgen::CLI.start

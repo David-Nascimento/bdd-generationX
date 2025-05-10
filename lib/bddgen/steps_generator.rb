@@ -43,8 +43,8 @@ module StepsGenerator
       return false
     end
 
-    nome_stepfile = nome_arquivo_feature.gsub(/\.feature$/, '_steps.rb')
-    caminho = "steps/#{nome_stepfile}"
+    nome_base = File.basename(nome_arquivo_feature, '.feature')
+    caminho = "steps/#{nome_base}_steps.rb"
     FileUtils.mkdir_p(File.dirname(caminho))
 
     comentario = "# Step definitions para #{File.basename(nome_arquivo_feature)}"
@@ -64,7 +64,7 @@ module StepsGenerator
     STEP
     end
 
-    FileUtils.mkdir_p("steps/features")
+    FileUtils.mkdir_p("steps")
     File.write(caminho, conteudo)
     puts "✅ Step definitions gerados: #{caminho}"
     true

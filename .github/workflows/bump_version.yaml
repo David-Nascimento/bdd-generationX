@@ -1,49 +1,55 @@
-name: 🔄 Auto Bump Version on Push to Master
+name: 🚀 Publicar nova versão da gem
 
 on:
   push:
     branches: [ master ]
 
 jobs:
-  bump_version:
+  release:
     runs-on: ubuntu-latest
+
     steps:
       - name: 🔽 Checkout
         uses: actions/checkout@v3
 
-      - name: 🔧 Set up Ruby
+      - name: 🔧 Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
 
-      - name: 📦 Read current version
+      - name: 📖 Lê versão atual
         id: read_version
         run: |
           version=$(grep VERSION lib/bddgen/version.rb | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
-          echo "Current version is $version"
           echo "version=$version" >> $GITHUB_OUTPUT
 
-      - name: ⬆️ Bump patch version
+      - name: ⬆️ Incrementa versão
         id: bump
         run: |
           old=${{ steps.read_version.outputs.version }}
           IFS='.' read -r MAJOR MINOR PATCH <<< "$old"
           new="$MAJOR.$MINOR.$((PATCH+1))"
-          echo "New version: $new"
+          sed -i "s/VERSION = .*/VERSION = \"$new\"/" lib/bddgen/version.rb
           echo "version=$new" >> $GITHUB_OUTPUT
 
-      - name: 📝 Update version.rb
-        run: |
-          sed -i "s/VERSION = .*/VERSION = \"${{ steps.bump.outputs.version }}\"/" lib/bddgen/version.rb
-
-      - name: 💾 Commit updated version
+      - name: 📦 Commit versão
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git commit -am "⬆️ Bump version to ${{ steps.bump.outputs.version }}"
+          git commit -am "⬆️ Bump gem version to ${{ steps.bump.outputs.version }}"
           git push origin master
 
-      - name: 🔖 Create Git Tag
+      - name: 🔖 Criar tag
         run: |
           git tag v${{ steps.bump.outputs.version }}
           git push origin v${{ steps.bump.outputs.version }}
+
+      - name: 🛠 Build da gem
+        run: |
+          gem build bddgen.gemspec
+
+      - name: 🚀 Publicar no RubyGems
+        env:
+          GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+        run: |
+          gem push bddgen-*.gem

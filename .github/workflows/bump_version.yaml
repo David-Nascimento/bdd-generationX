@@ -2,7 +2,7 @@ name: 🚀 Publicar nova versão da gem
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   release:
@@ -37,7 +37,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git commit -am "⬆️ Bump gem version to ${{ steps.bump.outputs.version }}"
-          git push origin master
+          git push origin main
 
       - name: 🔖 Criar tag
         run: |

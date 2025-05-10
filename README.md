@@ -1,136 +1,145 @@
 # 🧪 Gerador de BDD Automático em Ruby
 
-Este projeto gera arquivos `.feature` (formato Gherkin) automaticamente a partir de arquivos `.txt` contendo histórias de usuário. Ele segue as práticas do ISTQB e suporta múltiplos tipos de cenários, contexto, regras de negócio e exemplos estruturados.
+Este projeto gera arquivos `.feature` (Gherkin) e `steps.rb` automaticamente a partir de arquivos `.txt` com histórias de usuário, seguindo padrões ISTQB, parametrização com `Examples` e integração com pipelines.
 
 ---
 
 ## 📂 Estrutura do Projeto
-
-```
+```txt
 bdd_generator/
-├── bin/
-│ └── bddgen # Script executável
-├── input/ # Arquivos .txt com histórias
+├── input/ # Arquivos .txt com histórias de usuário
 ├── features/ # Arquivos .feature gerados
-├── steps/ # Step definitions automáticos
+├── steps/ # Arquivos com step definitions
 ├── output/
-│ └── rastreabilidade.csv # Rastreabilidade dos testes
-├── backup/ # Backups das versões antigas dos .feature
+│ └── rastreabilidade.csv
+├── backup/ # Versões antigas de features sobrescritas
 ├── lib/
-│ ├── cli.rb
 │ ├── parser.rb
-│ ├── validator.rb
 │ ├── generator.rb
+│ ├── validator.rb
 │ ├── steps_generator.rb
 │ ├── tracer.rb
-│ └── backup.rb
-├── main.rb # Arquivo principal
-└── Rakefile # Execução via rake gerar_bdd
+│ ├── backup.rb
+├── main.rb
+├── Rakefile
+└── README.md
 ```
----
-
 ## ▶️ Como Executar
 
-### ✅ Requisitos:
-- Ruby 3.x ou superior
+### 🔧 Requisitos
+- Ruby 3.x
+- `bundle install` (caso use gems como `prawn` ou `jira-ruby`)
 
-### 🚀 Execução direta:
+### 🏁 Comando direto:
+
 ```bash
 ruby main.rb
 ```
 
-### 🚀 Com script:
+🧱 Com Rake:
 ```bash
-./bin/bddgen
+rake bddgen:gerar
 ```
 
-### 🚀 Com Rake:
-```bash
-rake gerar_bdd
-```
-
-
-### ✍️ Como Criar um Arquivo .txt de Entrada:
-Exemplo: input/login.txt
+📥 Como Escrever um .txt de Entrada
 ```txt
-Como um usuário do sistema
-Quero fazer login
-Para acessar meus dados pessoais
+# language: pt
+Como um cliente do e-commerce
+Quero adicionar produtos ao carrinho
+Para finalizar minha compra com praticidade
 
 [CONTEXT]
-Dado que estou na página inicial
+Dado que estou logado na plataforma
+E tenho produtos disponíveis
 
 [REGRA]
-Apenas usuários com conta podem acessar
+O carrinho não deve permitir produtos fora de estoque
+E o valor total deve refletir o desconto promocional
 
 [SUCCESS]
-Dado que informo credenciais válidas
-Quando clico em "Entrar"
-Então vejo minha área privada
+Quando adiciono um produto ao carrinho
+Então ele aparece na listagem do carrinho
 
 [FAILURE]
-Dado que informo senha incorreta
-Quando clico em "Entrar"
-Então vejo uma mensagem de erro
+Quando tento adicionar um produto esgotado
+Então recebo uma mensagem de "produto indisponível"
 
 [EXAMPLES]
-| email              | senha        | resultado               |
-| user@email.com     | correta123   | acesso liberado         |
-| user@email.com     | errada456    | erro de autenticação    |
+| produto        | quantidade | total esperado |
+| Camiseta Azul  | 2          | 100            |
+| Tênis Branco   | 1          | 250            |
 
+[SUCCESS]
+Quando adiciono "<produto>" com quantidade <quantidade>
+Então vejo o total <total esperado>
 ```
-### 🌐 Idiomas Suportados:
-Adicione no topo do .txt:
-```txt
-# lang: en
+✅ Blocos Suportados
+[CONTEXT] – contexto comum
+
+[SUCCESS] – cenário positivo
+
+[FAILURE] – cenário negativo
+
+[ERROR], [EXCEPTION], [PERFORMANCE], etc.
+
+[REGRA] ou [RULE] – regras de negócio
+
+[EXAMPLES] – tabela de dados para Scenario Outline
+
+🧠 Saída esperada (feature)
+```gherkin
+# language: pt
+Funcionalidade: adicionar produtos ao carrinho
+
+  Como um cliente do e-commerce
+  Quero adicionar produtos ao carrinho
+  Para finalizar minha compra com praticidade
+
+  Regra: O carrinho não deve permitir produtos fora de estoque
+    E o valor total deve refletir o desconto promocional
+
+  Contexto:
+    Dado que estou logado na plataforma
+    E tenho produtos disponíveis
+
+  @success
+  Cenário: Teste Positivo - adiciono um produto ao carrinho - ele aparece na listagem do carrinho
+    Quando adiciono um produto ao carrinho
+    Então ele aparece na listagem do carrinho
+
+  Esquema do Cenário: Gerado a partir de dados de exemplo
+    Quando adiciono "<produto>" com quantidade <quantidade>
+    Então vejo o total <total esperado>
+
+    Exemplos:
+      | produto        | quantidade | total esperado |
+      | Camiseta Azul  | 2          | 100            |
+      | Tênis Branco   | 1          | 250            |
 ```
-Para gerar arquivos em inglês (Scenario, Given, Then, etc.).
 
-### 🏷️ Tipos de Cenário Suportados:
-- [SUCCESS] – Teste Positivo
+🧩 Step Definitions geradas
+```ruby
+Quando('adiciono "<produto>" com quantidade <quantidade>') do |produto, quantidade|
+  pending 'Implementar passo: adiciono "<produto>" com quantidade <quantidade>'
+end
 
-- [FAILURE] – Teste Negativo
-
-- [ERROR] – Erros inesperados
-
-- [EXCEPTION] – Exceções e falhas técnicas
-
-- [VALIDATION] – Validação de campos
-
-- [PERMISSION] – Permissões e acesso
-
-- [EDGE_CASE] – Casos limite
-
-- [PERFORMANCE] – Testes de carga ou volume
-
-- [CONTEXT] – Passos comuns a todos os cenários
-
-- [REGRA] – Regras de negócio
-
-- [EXAMPLES] – Cenários com dados variados
-
-### 📊 Rastreabilidade:
-Ao gerar um .feature, o sistema adiciona uma linha no arquivo:
-```sh
-output/rastreabilidade.csv
+Então('vejo o total <total esperado>') do |total_esperado|
+  pending 'Implementar passo: vejo o total <total esperado>'
+end
 ```
-Com colunas:
-- Funcionalidade
-- Tipo de Teste
-- Nome do Cenário
-- Caminho do arquivo .feature
+🧾 Rastreabilidade
+- Gera automaticamente um CSV em output/rastreabilidade.csv com:
+- Nome do cenário
+- Tipo (SUCCESS, FAILURE, etc.)
+- Caminho do .feature
+- Origem do .txt
 
-### 🔐 Backup Automático:
-Antes de sobrescrever um arquivo .feature, o sistema salva uma cópia em:
+🔄 Backup
+Toda vez que um .feature existente for sobrescrito, a versão anterior é salva em:
 ```
 backup/
 ```
-Com timestamp no nome, ex:
-```
-login_20250510_153001.feature
-```
-### ⚙️ CI/CD:
-Exemplo para GitHub Actions:
+✅ Execução em CI/CD (GitHub Actions)
 ```yaml
 jobs:
   gerar_bdd:
@@ -141,14 +150,12 @@ jobs:
         with:
           ruby-version: '3.2'
       - run: ruby main.rb
-
 ```
 
-### 👨‍💻 Autor:
-David Nascimento – Gerador de BDD com Ruby e Gherkin – 2025
-```yaml 
-Esse README já está pronto para ser usado em repositórios, arquivos `.zip` ou documentação interna da sua equipe.
+👨‍💻 Autor
+David Nascimento – Projeto de automação BDD com Ruby – 2025
+```yaml
+---
 
-Posso te ajudar agora a montar um `.zip` com todos os arquivos prontos?
-
+Pronto para copiar, colar ou subir no GitHub como `README.md`. Deseja que eu prepare um `.zip` com tudo funcionando como entrega final?
 ```

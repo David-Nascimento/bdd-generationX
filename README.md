@@ -7,24 +7,28 @@ Este projeto gera arquivos `.feature` (Gherkin) e `steps.rb` automaticamente a p
 ## 📂 Estrutura do Projeto
 ```txt
 bdd_generator/
-├── doc
+├── doc/
 │   ├── configuracao-padra.md
 │   └── configuracao-rake.md
-├── input/ # Arquivos .txt com histórias de usuário
-├── features/ # Arquivos .feature gerados
-├── steps/ # Arquivos com step definitions
+├── input/                  # Arquivos .txt com histórias de usuário
+├── features/               # Arquivos .feature gerados
+├── steps/                  # Arquivos com step definitions
 ├── output/
-│ └── rastreabilidade.csv
-├── backup/ # Versões antigas de features sobrescritas
+│   └── rastreabilidade.csv
+├── pdf/                    # Relatórios PDF gerados
+├── backup/                 # Versões antigas de arquivos sobrescritos
 ├── lib/
-│ ├── bddgenx
-│ │   ├── parser.rb
-│ │   ├── generator.rb
-│ │   ├── validator.rb
-│ │   ├── steps_generator.rb
-│ │   ├── tracer.rb
-│ │   └── backup.rb
-│ └── bddgenx.rb
+│   ├── bddgenx/
+│   │   ├── parser.rb
+│   │   ├── generator.rb
+│   │   ├── steps_generator.rb
+│   │   ├── validator.rb
+│   │   ├── tracer.rb
+│   │   ├── backup.rb
+│   │   ├── pdf_exporter.rb
+│   │   └── utils/
+│   │       └── verificador.rb
+│   └── bddgenx.rb          # Arquivo principal de execução
 ├── Rakefile
 └── README.md
 ```

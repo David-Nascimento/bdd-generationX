@@ -288,3 +288,6 @@ adicionar produtos ao carrinho;Permission;Permission - um usuário não logado t
 adicionar produtos ao carrinho;Edge case;Edge case - adiciono 999 unidades de um item - o sistema limita automaticamente a 10 unidades;features/quero_adicionar_produtos_ao_carrinho.feature
 adicionar produtos ao carrinho;Performance;Performance - adiciono 100 produtos seguidos - o tempo de resposta deve ser inferior a 2 segundos;features/quero_adicionar_produtos_ao_carrinho.feature
 gerar relatórios de desempenho;Success;Success - sou um administrador - o acesso é permitido;features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Success;Success - sou um administrador - o acesso é permitido;features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Success;Success - preencho email e senha válidos - Quando adiciono <produto> com quantidade <quantidade> e valor <valor unitario>;features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Failure;"Failure - informo uma senha incorreta - recebo a mensagem ""Credenciais inválidas""";features/quero_gerar_relat_rios_de_desempenho.feature

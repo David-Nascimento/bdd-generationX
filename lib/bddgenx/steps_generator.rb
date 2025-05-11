@@ -1,4 +1,5 @@
 require 'fileutils'
+require_relative 'utils/verificador'
 
 module StepsGenerator
   PADROES = {
@@ -100,8 +101,11 @@ module StepsGenerator
     end
 
     FileUtils.mkdir_p("steps")
-    File.write(caminho, conteudo)
-    puts "✅ Step definitions gerados: #{caminho}"
+    if Bddgenx::Verificador.gerar_arquivo_se_novo(caminho, conteudo)
+      puts "✅ Step definitions gerados: #{caminho}"
+    else
+      puts "⏭️  Steps mantidos: #{caminho}"
+    end
     true
   end
 

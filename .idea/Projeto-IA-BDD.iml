@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="RUBY_MODULE" version="4">
+  <component name="ModuleRunConfigurationManager">
+    <shared />
+  </component>
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/features" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="activesupport (v7.2.2.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="addressable (v2.8.7, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="atlassian-jwt (v0.2.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="base64 (v0.2.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="benchmark (v0.4.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="bigdecimal (v3.1.9, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="bundler (v2.6.8, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="concurrent-ruby (v1.3.5, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="connection_pool (v2.5.3, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="css_parser (v1.21.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="drb (v2.2.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="hashie (v5.0.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="i18n (v1.14.7, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="jira-ruby (v2.3.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="jwt (v2.10.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="logger (v1.7.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="matrix (v0.4.2, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="minitest (v5.25.5, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="multipart-post (v2.4.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="oauth (v0.6.2, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="pdf-core (v0.10.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="prawn (v2.5.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="prawn-svg (v0.37.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="prawn-table (v0.2.2, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="public_suffix (v6.0.2, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rexml (v3.4.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="securerandom (v0.4.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="snaky_hash (v2.0.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ttfunk (v1.8.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="tzinfo (v2.0.6, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="version_gem (v1.1.8, ruby-3.1.7-p261) [gem]" level="application" />
+  </component>
+</module>

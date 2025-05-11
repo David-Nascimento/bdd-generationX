@@ -1,4 +1,8 @@
 # language: pt
+Como um cliente do e-commerce
+Quero adicionar produtos ao carrinho
+Para finalizar minha compra com praticidade
+
 [VALIDATION]
 Quando deixo o campo "número do cartão" em branco
 Então recebo uma mensagem "Campo obrigatório"
@@ -7,11 +11,11 @@ Então recebo uma mensagem "Campo obrigatório"
 Quando tento pagar com cartão de outro usuário
 Então recebo um erro de permissão
 
+[SUCCESS]
+Quando seleciono "<forma de pagamento>"
+Então vejo "<status esperado>"
+
 [EXAMPLES]
 | forma de pagamento | status esperado  |
 | cartão             | aprovado         |
 | boleto             | pendente         |
-
-[SUCCESS]
-Quando seleciono "<forma de pagamento>"
-Então vejo <status esperado>

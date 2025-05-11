@@ -1,4 +1,8 @@
 # language: pt
+Como um gerente
+Quero gerar relatórios de desempenho
+Para acompanhar o progresso da equipe
+
 [SUCCESS]
 Quando preencho email e senha válidos
 Então sou redirecionado para o dashboard
@@ -14,4 +18,12 @@ Então recebo a mensagem "Credenciais inválidas"
 
 [SUCCESS]
 Quando tento logar com "<email>" e "<senha>"
-Então recebo <resultado>
+Então recebo "<resultado>"
+
+[EXAMPLES]
+| produto        | quantidade | valor unitario |
+| "Camiseta"     | 2          | 49             |
+| "Tênis"        | 1          | 120            |
+
+[SUCCESS]
+Quando adiciono <produto> com quantidade <quantidade> e valor <valor unitario>

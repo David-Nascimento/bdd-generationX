@@ -86,30 +86,32 @@ module Generator
     # Esquema do Cenário com Exemplos
     if historia[:blocos]["EXAMPLES"]&.any?
       exemplo_bruto = historia[:blocos]["EXAMPLES"]
+      grupos = dividir_examples(exemplo_bruto)
 
-      # Remove qualquer linha que seja passo Gherkin
-      tabela = exemplo_bruto.select { |linha| linha.strip.start_with?('|') }
+      grupos.each_with_index do |tabela, i|
+        cabecalho = tabela.first.gsub('|', '').split.map(&:strip)
+        linhas = tabela[1..].map { |linha| linha.split('|').reject(&:empty?).map(&:strip) }
 
-      cabecalho = tabela.first.gsub('|', '').split.map(&:strip)
-      exemplos = tabela[1..]
+        exemplos = { cabecalho: cabecalho, linhas: linhas }
 
-      # Encontra os passos de sucesso com parâmetros
-      passos_outline = historia[:blocos]["SUCCESS"].select { |l| l.include?('<') }
+        passos_outline = historia[:blocos]["SUCCESS"].select do |linha|
+          cabecalho.any? { |coluna| linha.include?("<#{coluna}>") }
+        end
 
-      if idioma == 'en'
-        conteudo += "    Scenario Outline: Generated scenario with data\n"
-      else
-        conteudo += "    Esquema do Cenário: Gerado a partir de dados de exemplo\n"
+        next if passos_outline.empty?
+
+        conteudo += "\n"
+        conteudo += idioma == 'en' ? "    Scenario Outline: Example #{i + 1}\n" : "    Esquema do Cenário: Exemplo #{i + 1}\n"
+
+        passos_outline.each do |passo|
+          conteudo += "      #{passo}\n"
+        end
+
+        conteudo += "\n"
+        conteudo += idioma == 'en' ? "      Examples:\n" : "      Exemplos:\n"
+        conteudo += "        #{tabela.first}\n"
+        tabela[1..].each { |linha| conteudo += "        #{linha}\n" }
       end
-
-      passos_outline.each do |passo|
-        conteudo += "      #{passo}\n"
-      end
-
-      conteudo += "\n"
-      conteudo += idioma == 'en' ? "      Examples:\n" : "      Exemplos:\n"
-      conteudo += "        #{tabela.first}\n"
-      exemplos.each { |linha| conteudo += "        #{linha}\n" }
     end
 
     [caminho, conteudo]
@@ -127,4 +129,22 @@ module Generator
     puts "✅ Arquivo .feature gerado: #{caminho}"
     true
   end
+
+  def self.dividir_examples(tabela_bruta)
+    grupos = []
+    grupo_atual = []
+
+    tabela_bruta.each do |linha|
+      if linha.strip =~ /^\|\s*[\w\s]+\|/ && grupo_atual.any? && linha.strip == linha.strip.squeeze(" ")
+        grupos << grupo_atual
+        grupo_atual = [linha]
+      else
+        grupo_atual << linha
+      end
+    end
+
+    grupos << grupo_atual unless grupo_atual.empty?
+    grupos
+  end
+
 end

@@ -134,3 +134,103 @@ gerar relatórios de desempenho;Success;"Success - seleciono o ""<mês>"" atual 
 gerar relatórios de desempenho;Success;"Success - seleciono o ""<mês>"" atual - o sistema exibe o relatório com <total vendas>";features/quero_gerar_relat_rios_de_desempenho.feature
 gerar relatórios de desempenho;Success;"Success - seleciono o ""<mês>"" atual - o sistema exibe o relatório com <total vendas>";features/quero_gerar_relat_rios_de_desempenho.feature
 gerar relatórios de desempenho;Success;"Success - seleciono o ""<mês>"" atual - o sistema exibe o relatório com <total vendas>";features/quero_gerar_relat_rios_de_desempenho.feature
+acessar o painel de controle;Success;Success - estou logado como administrador - vejo as opções de administração;features/quero_acessar_o_painel_de_controle.feature
+adicionar produtos ao carrinho;Success;Success - adiciono um produto ao carrinho - vejo o total <total esperado>;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Failure;"Failure - tento adicionar um produto esgotado - recebo uma mensagem de ""produto indisponível""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Error;Error - o serviço de estoque estiver fora do ar - exibo uma mensagem de erro técnico;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Exception;Exception - o produto estiver com dados inconsistentes - o sistema deve registrar o erro e impedir a adição;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;Validation - tento adicionar uma quantidade negativa - exibo uma mensagem de validação;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - um usuário não logado tenta adicionar um produto - sou redirecionado para a tela de login;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Edge case;Edge case - adiciono 999 unidades de um item - o sistema limita automaticamente a 10 unidades;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Performance;Performance - adiciono 100 produtos seguidos - o tempo de resposta deve ser inferior a 2 segundos;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo <status esperado>";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo <status esperado>";features/quero_adicionar_produtos_ao_carrinho.feature
+gerar relatórios de desempenho;Success;Success - sou um administrador - o acesso é permitido;features/quero_gerar_relat_rios_de_desempenho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo <status esperado>";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo <status esperado>";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo <status esperado>";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+gerar relatórios de desempenho;Success;Success - preencho email e senha válidos - Quando adiciono <produto> com quantidade <quantidade> e valor <valor unitario>;features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Failure;"Failure - informo uma senha incorreta - recebo a mensagem ""Credenciais inválidas""";features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Success;Success - preencho email e senha válidos - Quando adiciono <produto> com quantidade <quantidade> e valor <valor unitario>;features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Failure;"Failure - informo uma senha incorreta - recebo a mensagem ""Credenciais inválidas""";features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Success;Success - preencho email e senha válidos - Quando adiciono <produto> com quantidade <quantidade> e valor <valor unitario>;features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Failure;"Failure - informo uma senha incorreta - recebo a mensagem ""Credenciais inválidas""";features/quero_gerar_relat_rios_de_desempenho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+gerar relatórios de desempenho;Success;Success - sou um administrador - o acesso é permitido;features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Success;Success - preencho email e senha válidos - Quando adiciono <produto> com quantidade <quantidade> e valor <valor unitario>;features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Failure;"Failure - informo uma senha incorreta - recebo a mensagem ""Credenciais inválidas""";features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Success;Success - preencho email e senha válidos - Quando adiciono <produto> com quantidade <quantidade> e valor <valor unitario>;features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Failure;"Failure - informo uma senha incorreta - recebo a mensagem ""Credenciais inválidas""";features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Success;Success - sou um administrador - o acesso é permitido;features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Success;Success - sou um administrador - o acesso é permitido;features/quero_gerar_relat_rios_de_desempenho.feature
+adicionar produtos ao carrinho;Validation;"Validation - deixo o campo ""número do cartão"" em branco - recebo uma mensagem ""Campo obrigatório""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - tento pagar com cartão de outro usuário - recebo um erro de permissão;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;"Success - seleciono ""<forma de pagamento>"" - vejo ""<status esperado>""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Success;Success - adiciono um produto ao carrinho - vejo o total <total esperado>;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Failure;"Failure - tento adicionar um produto esgotado - recebo uma mensagem de ""produto indisponível""";features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Error;Error - o serviço de estoque estiver fora do ar - exibo uma mensagem de erro técnico;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Exception;Exception - o produto estiver com dados inconsistentes - o sistema deve registrar o erro e impedir a adição;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Validation;Validation - tento adicionar uma quantidade negativa - exibo uma mensagem de validação;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Permission;Permission - um usuário não logado tenta adicionar um produto - sou redirecionado para a tela de login;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Edge case;Edge case - adiciono 999 unidades de um item - o sistema limita automaticamente a 10 unidades;features/quero_adicionar_produtos_ao_carrinho.feature
+adicionar produtos ao carrinho;Performance;Performance - adiciono 100 produtos seguidos - o tempo de resposta deve ser inferior a 2 segundos;features/quero_adicionar_produtos_ao_carrinho.feature
+acessar o painel de controle;Success;Success - estou logado como administrador - vejo as opções de administração;features/quero_acessar_o_painel_de_controle.feature
+gerar relatórios de desempenho;Success;Success - preencho email e senha válidos - Quando adiciono <produto> com quantidade <quantidade> e valor <valor unitario>;features/quero_gerar_relat_rios_de_desempenho.feature
+gerar relatórios de desempenho;Failure;"Failure - informo uma senha incorreta - recebo a mensagem ""Credenciais inválidas""";features/quero_gerar_relat_rios_de_desempenho.feature

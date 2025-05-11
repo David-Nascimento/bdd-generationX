@@ -17,38 +17,49 @@ module StepsGenerator
     conectores = PADROES[idioma]
     passos_gerados = []
 
-    # Detectar parâmetros e tipos a partir do bloco EXAMPLES
-    exemplos = extrair_exemplos(historia[:blocos]["EXAMPLES"])
+    grupos_examples = dividir_examples(historia[:blocos]["EXAMPLES"]) if historia[:blocos]["EXAMPLES"]&.any?
 
     TIPOS_BLOCOS.each do |tipo|
       blocos = tipo == "REGRA" || tipo == "RULE" ? historia[:regras] : historia[:blocos][tipo]
       next unless blocos.is_a?(Array)
 
-      is_outline = tipo == "SUCCESS" && historia[:blocos]["EXAMPLES"]&.any?
+      passos = blocos.dup
 
-      blocos.each do |linha|
+      passos.each do |linha|
         conector = conectores.find { |c| linha.strip.start_with?(c) }
         next unless conector
 
         corpo = linha.strip.sub(/^#{conector}/, '').strip
 
-        # Detecta se é um passo de Scenario Outline (com exemplos)
-        is_outline = tipo == "SUCCESS" && historia[:blocos]["EXAMPLES"]&.any?
-
-        # Sanitiza aspas se existirem
+        # Sanitiza aspas duplas envolvendo parâmetros, ex: "<nome>" -> <nome>
         corpo_sanitizado = corpo.gsub(/"(<[^>]+>)"/, '\1')
 
-        if is_outline
+        # Verifica se este passo pertence a algum grupo de exemplos
+        grupo_exemplo_compat = nil
+
+        if tipo == "SUCCESS" && grupos_examples
+          grupos_examples.each do |grupo|
+            cabecalho = grupo.first.gsub('|', '').split.map(&:strip)
+            if cabecalho.any? { |col| corpo.include?("<#{col}>") }
+              grupo_exemplo_compat = {
+                cabecalho: cabecalho,
+                linhas: grupo[1..].map { |linha| linha.split('|').reject(&:empty?).map(&:strip) }
+              }
+              break
+            end
+          end
+        end
+
+        if grupo_exemplo_compat
+          # Substitui cada <param> por {tipo} dinamicamente
           corpo_parametrizado = corpo_sanitizado.gsub(/<([^>]+)>/) do
             nome = $1.strip
-            tipo_param = exemplos ? detectar_tipo_param(nome, exemplos) : 'string'
+            tipo_param = detectar_tipo_param(nome, grupo_exemplo_compat)
             "{#{tipo_param}}"
           end
 
-          # extrair parâmetros para do |...|
           parametros = corpo.scan(/<([^>]+)>/).flatten.map { |p| p.strip.gsub(' ', '_') }
           param_list = parametros.join(', ')
-
         else
           corpo_parametrizado = corpo
           parametros = []
@@ -63,8 +74,8 @@ module StepsGenerator
           tipo: tipo
         } unless passos_gerados.any? { |p| p[:param] == corpo_parametrizado }
       end
-    end
 
+    end
 
     if passos_gerados.empty?
       puts "⚠️  Nenhum passo detectado em: #{nome_arquivo_feature} (arquivo não gerado)"
@@ -80,16 +91,12 @@ module StepsGenerator
     conteudo = "#{comentario}\n\n"
 
     passos_gerados.each do |passo|
-    # Extrai nomes dos parâmetros entre < >
-    parametros = passo[:raw].scan(/<([^>]+)>/).flatten.map(&:strip)
-    param_list = parametros.map { |p| p.gsub(' ', '_') }.join(', ')
-
-    conteudo += <<~STEP
-      #{passo[:conector]}('#{passo[:param]}') do#{param_list.empty? ? '' : " |#{param_list}|" }
+      conteudo += <<~STEP
+      #{passo[:conector]}('#{passo[:param]}') do#{passo[:args].empty? ? '' : " |#{passo[:args]}|"}
         pending '#{idioma == 'en' ? 'Implement step' : 'Implementar passo'}: #{passo[:raw]}'
       end
 
-    STEP
+      STEP
     end
 
     FileUtils.mkdir_p("steps")
@@ -97,6 +104,7 @@ module StepsGenerator
     puts "✅ Step definitions gerados: #{caminho}"
     true
   end
+
 
   def self.substituir_parametros(texto, exemplos)
     texto.gsub(/<([^>]+)>/) do |_match|
@@ -110,16 +118,32 @@ module StepsGenerator
     return 'string' unless exemplos && exemplos[:cabecalho].include?(nome_coluna)
 
     idx = exemplos[:cabecalho].index(nome_coluna)
-    valores = exemplos[:linhas].map { |l| l[idx] }
+    valores = exemplos[:linhas].map { |linha| linha[idx].to_s.strip }
 
-    if valores.all? { |v| v.match?(/^\d+$/) }
-      'int'
-    elsif valores.all? { |v| v.match?(/^\d+\.\d+$/) }
-      'float'
-    else
-      'string'
-    end
+    return 'boolean' if valores.all? { |v| %w[true false].include?(v.downcase) }
+    return 'int'     if valores.all? { |v| v.match?(/^\d+$/) }
+    return 'float'   if valores.all? { |v| v.match?(/^\d+\.\d+$/) }
+
+    'string'
   end
+
+  def self.dividir_examples(tabela_bruta)
+    grupos = []
+    grupo_atual = []
+
+    tabela_bruta.each do |linha|
+      if linha.strip =~ /^\|\s*[\w\s]+\|/ && grupo_atual.any? && linha.strip == linha.strip.squeeze(" ")
+        grupos << grupo_atual
+        grupo_atual = [linha]
+      else
+        grupo_atual << linha
+      end
+    end
+
+    grupos << grupo_atual unless grupo_atual.empty?
+    grupos
+  end
+
 
   def self.extrair_exemplos(bloco)
     return nil unless bloco&.any?

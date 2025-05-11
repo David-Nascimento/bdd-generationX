@@ -24,19 +24,47 @@ module StepsGenerator
       blocos = tipo == "REGRA" || tipo == "RULE" ? historia[:regras] : historia[:blocos][tipo]
       next unless blocos.is_a?(Array)
 
-      blocos.each do |linha|
-        next if tipo == "EXAMPLES" && linha.strip.start_with?("|") # ignora linhas de tabela
+      is_outline = tipo == "SUCCESS" && historia[:blocos]["EXAMPLES"]&.any?
 
+      blocos.each do |linha|
         conector = conectores.find { |c| linha.strip.start_with?(c) }
         next unless conector
 
         corpo = linha.strip.sub(/^#{conector}/, '').strip
-        corpo_parametrizado = substituir_parametros(corpo, exemplos)
 
-        chave = { conector: conector, raw: corpo, param: corpo_parametrizado }
-        passos_gerados << chave unless passos_gerados.any? { |p| p[:param] == corpo_parametrizado }
+        # Detecta se é um passo de Scenario Outline (com exemplos)
+        is_outline = tipo == "SUCCESS" && historia[:blocos]["EXAMPLES"]&.any?
+
+        # Sanitiza aspas se existirem
+        corpo_sanitizado = corpo.gsub(/"(<[^>]+>)"/, '\1')
+
+        if is_outline
+          corpo_parametrizado = corpo_sanitizado.gsub(/<([^>]+)>/) do
+            nome = $1.strip
+            tipo_param = exemplos ? detectar_tipo_param(nome, exemplos) : 'string'
+            "{#{tipo_param}}"
+          end
+
+          # extrair parâmetros para do |...|
+          parametros = corpo.scan(/<([^>]+)>/).flatten.map { |p| p.strip.gsub(' ', '_') }
+          param_list = parametros.join(', ')
+
+        else
+          corpo_parametrizado = corpo
+          parametros = []
+          param_list = ""
+        end
+
+        passos_gerados << {
+          conector: conector,
+          raw: corpo,
+          param: corpo_parametrizado,
+          args: param_list,
+          tipo: tipo
+        } unless passos_gerados.any? { |p| p[:param] == corpo_parametrizado }
       end
     end
+
 
     if passos_gerados.empty?
       puts "⚠️  Nenhum passo detectado em: #{nome_arquivo_feature} (arquivo não gerado)"

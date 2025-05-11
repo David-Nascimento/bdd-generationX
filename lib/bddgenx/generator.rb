@@ -63,7 +63,14 @@ module Generator
     # Cenários
     TIPOS_CENARIO.each do |tipo|
       passos = historia[:blocos][tipo]
-      next unless passos&.any?
+      passos = passos&.reject { |l| l.strip.empty? } || []
+      next if passos.empty?
+
+      # Ignora geração duplicada se for um SUCCESS parametrizado com EXAMPLES
+      if tipo == "SUCCESS" && historia[:blocos]["EXAMPLES"]&.any?
+        possui_parametros = passos.any? { |p| p.include?('<') }
+        next if possui_parametros
+      end
 
       nome_teste = TIPOS_ISTQB[tipo] || palavras[:cenario]
       contexto = passos.first&.gsub(/^(Dado que|Given|Quando|When|Então|Then|E|And)/, '')&.strip || "Condição"
@@ -78,13 +85,16 @@ module Generator
 
     # Esquema do Cenário com Exemplos
     if historia[:blocos]["EXAMPLES"]&.any?
-      exemplos_bruto = historia[:blocos]["EXAMPLES"]
-      cabecalho = exemplos_bruto.first.gsub('|', '').split.map(&:strip)
-      linhas = exemplos_bruto[1..]
+      exemplo_bruto = historia[:blocos]["EXAMPLES"]
 
-      # Procura qualquer cenário que use parâmetros
-      tipo_cenario = historia[:blocos].keys.find { |k| historia[:blocos][k].any? { |l| l.include?('<') } }
-      passos_exemplo = tipo_cenario ? historia[:blocos][tipo_cenario].select { |l| l.include?('<') } : []
+      # Remove qualquer linha que seja passo Gherkin
+      tabela = exemplo_bruto.select { |linha| linha.strip.start_with?('|') }
+
+      cabecalho = tabela.first.gsub('|', '').split.map(&:strip)
+      exemplos = tabela[1..]
+
+      # Encontra os passos de sucesso com parâmetros
+      passos_outline = historia[:blocos]["SUCCESS"].select { |l| l.include?('<') }
 
       if idioma == 'en'
         conteudo += "    Scenario Outline: Generated scenario with data\n"
@@ -92,18 +102,15 @@ module Generator
         conteudo += "    Esquema do Cenário: Gerado a partir de dados de exemplo\n"
       end
 
-      passos_exemplo.each do |passo|
+      passos_outline.each do |passo|
         conteudo += "      #{passo}\n"
       end
 
       conteudo += "\n"
       conteudo += idioma == 'en' ? "      Examples:\n" : "      Exemplos:\n"
-      conteudo += "        #{exemplos_bruto.first}\n"
-      linhas.each { |linha| conteudo += "        #{linha}\n" }
+      conteudo += "        #{tabela.first}\n"
+      exemplos.each { |linha| conteudo += "        #{linha}\n" }
     end
-
-
-
 
     [caminho, conteudo]
   end

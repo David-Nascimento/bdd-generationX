@@ -1,12 +1,12 @@
 require_relative "bddgenx/version"
-require_relative "bddgenx/cli"
 require_relative "bddgenx/parser"
-require_relative "bddgenx/validator"
 require_relative "bddgenx/generator"
+require_relative "bddgenx/cli"
+require_relative "bddgenx/validator"
 require_relative "bddgenx/steps_generator"
 require_relative "bddgenx/tracer"
 require_relative "bddgenx/backup"
-require_relative 'bddgenx/pdf_exporter'
+
 
 cont_total = 0
 cont_features = 0

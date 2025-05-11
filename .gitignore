@@ -1,0 +1,35 @@
+# Arquivos Ruby e Bundler
+*.gem
+*.rbc
+.bundle
+config.yml
+vendor/
+.ruby-version
+.ruby-gemset
+Gemfile.lock
+
+# Diretórios da geração automática
+features/
+steps/
+output/
+backup/
+
+# Arquivos de log e temporários
+*.log
+*.tmp
+*.swp
+*.bak
+*.old
+.DS_Store
+
+# Arquivos de build
+pkg/
+coverage/
+doc/
+
+# Byebug e Pry
+.byebug_history
+.pry_history
+
+# VSCode
+.vscode/

@@ -7,6 +7,9 @@ Este projeto gera arquivos `.feature` (Gherkin) e `steps.rb` automaticamente a p
 ## 📂 Estrutura do Projeto
 ```txt
 bdd_generator/
+├── doc
+│   ├── configuracao-padra.md
+│   └── configuracao-rake.md
 ├── input/ # Arquivos .txt com histórias de usuário
 ├── features/ # Arquivos .feature gerados
 ├── steps/ # Arquivos com step definitions
@@ -14,13 +17,14 @@ bdd_generator/
 │ └── rastreabilidade.csv
 ├── backup/ # Versões antigas de features sobrescritas
 ├── lib/
-│ ├── parser.rb
-│ ├── generator.rb
-│ ├── validator.rb
-│ ├── steps_generator.rb
-│ ├── tracer.rb
-│ ├── backup.rb
-├── main.rb
+│ ├── bddgenx
+│ │   ├── parser.rb
+│ │   ├── generator.rb
+│ │   ├── validator.rb
+│ │   ├── steps_generator.rb
+│ │   ├── tracer.rb
+│ │   └── backup.rb
+│ └── bddgenx.rb
 ├── Rakefile
 └── README.md
 ```
@@ -150,6 +154,37 @@ jobs:
         with:
           ruby-version: '3.2'
       - run: ruby main.rb
+```
+⚙️ Alternativa: Usar via Rake
+
+Você também pode executar a gem bddgenx com Rake, como em projetos Rails:
+
+Crie um arquivo Rakefile:
+```ruby
+require "bddgenx"
+require "rake"
+
+namespace :bddgenx do
+  desc "Gera arquivos .feature e steps a partir de arquivos .txt"
+  task :gerar do
+    arquivos = Dir.glob("input/*.txt")
+
+    arquivos.each do |arquivo|
+      historia = Bddgenx::Parser.ler_historia(arquivo)
+      next unless Bddgenx::Validator.validar(historia)
+
+      nome_feature, conteudo = Bddgenx::Generator.gerar_feature(historia)
+      Bddgenx::Backup.salvar_versao_antiga(nome_feature)
+      Bddgenx::Generator.salvar_feature(nome_feature, conteudo)
+
+      Bddgenx::StepsGenerator.gerar_passos(historia, nome_feature)
+      Bddgenx::Tracer.adicionar_entrada(historia, nome_feature)
+    end
+
+    puts "✅ Geração BDD concluída com sucesso!"
+  end
+end
+
 ```
 
 👨‍💻 Autor

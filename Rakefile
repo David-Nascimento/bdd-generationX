@@ -1,14 +1,14 @@
 require 'rake'
-require_relative 'lib/bddgen.rb'
-require_relative 'lib/bddgen/pdf_exporter'
-require_relative 'lib/bddgen/integrations/jira'
-require_relative 'lib/bddgen/integrations/testlink'
+require_relative 'lib/bddgenx.rb'
+require_relative 'lib/bddgenx/pdf_exporter'
+require_relative 'lib/bddgenx/integrations/jira'
+require_relative 'lib/bddgenx/integrations/testlink'
 
-namespace :bddgen do
+namespace :bddgenx do
 
   desc "Gerar arquivos .feature, steps, rastreabilidade e backups"
   task :gerar do
-    arquivos = Bddgen::CLI.todos_arquivos('input')
+    arquivos = Bddgenx::CLI.todos_arquivos('input')
     arquivos.each do |arquivo|
       puts "🔁 Executando: ruby bddgen.rb"
       system("ruby lib/bddgen.rb")
@@ -19,12 +19,12 @@ namespace :bddgen do
   desc "Exportar todos os arquivos .feature para PDF"
   task :pdf do
     puts "📦 Exportando para PDF..."
-    Bddgen::PDFExporter.exportar_todos
+    Bddgenx::PDFExporter.exportar_todos
   end
 
   desc "Enviar todos os cenários para o Jira"
   task :jira do
-    jira = Bddgen::Integrations::Jira.new(
+    jira = Bddgenx::Integrations::Jira.new(
       username: ENV['JIRA_USER'],
       api_token: ENV['JIRA_TOKEN'],
       site: ENV['JIRA_SITE'],

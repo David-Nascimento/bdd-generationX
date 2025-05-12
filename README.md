@@ -6,37 +6,37 @@ Este projeto gera arquivos `.feature` (Gherkin) e `steps.rb` automaticamente a p
 
 ## 📂 Estrutura do Projeto
 ```txt
-bdd_generator/
-├── doc/
-│   ├── configuracao-padra.md
-│   └── configuracao-rake.md
-├── assets/
-│       └── fonts/
-│           ├── DejaVuSansMono.ttf
-│           ├── DejaVuSansMono-Bold.ttf
-│           ├── DejaVuSansMono-Oblique.ttf
-│           └── DejaVuSansMono-BoldOblique.ttf
-├── input/                  # Arquivos .txt com histórias de usuário
-├── features/               # Arquivos .feature gerados
-├── steps/                  # Arquivos com step definitions
-├── output/
-│   └── rastreabilidade.csv
-├── pdf/                    # Relatórios PDF gerados
-├── backup/                 # Versões antigas de arquivos sobrescritos
-├── lib/
-│   ├── bddgenx/
+bddgenx/                      # raiz do repositório
+├── bin/                      # executáveis CLI
+│   └── bddgenx               # script que chama Bddgenx::Runner.executar
+├── lib/                      # código-fonte da gem
+│   ├── bddgenx/              # namespace principal
 │   │   ├── parser.rb
+│   │   ├── validator.rb
 │   │   ├── generator.rb
 │   │   ├── steps_generator.rb
-│   │   ├── validator.rb
 │   │   ├── tracer.rb
 │   │   ├── backup.rb
 │   │   ├── pdf_exporter.rb
-│   │   └── utils/
+│   │   └── utils/             # helpers e módulos auxiliares
 │   │       └── verificador.rb
-│   └── bddgenx.rb          # Arquivo principal de execução
-├── Rakefile
-└── README.md
+│   └── bddgenx.rb            # entrypoint: require_relative de tudo
+├── features/                 # specs Cucumber para testar a gem
+│   └── support/              # support files para os testes
+├── spec/ or test/            # unit tests (RSpec, Minitest)
+├── input/                    # exemplos de .txt de usuários
+├── output/                   # artefatos gerados (rastreabilidade.csv, etc.)
+├── pdf/                      # PDFs gerados
+├── backup/                   # backups automáticos
+├── doc/                      # documentação (markdown)
+│   ├── configuracao-padra.md
+│   └── configuracao-rake.md
+├── bddgenx.gemspec           # gemspec
+├── Gemfile                   # dependências de desenvolvimento
+├── Rakefile                  # tarefas: build, test, release, clean…
+├── .gitignore
+└── README.md                 # descrição, instalação, exemplos de uso
+
 ```
 ## ▶️ Como Executar
 

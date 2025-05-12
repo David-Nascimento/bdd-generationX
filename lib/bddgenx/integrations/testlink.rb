@@ -1,7 +1,6 @@
 require 'xmlrpc/client'
 
-module Bddgen
-  module Integrations
+module Bddgenx
     class TestLink
       def initialize(api_key, url)
         @server = XMLRPC::Client.new2(url)
@@ -33,5 +32,4 @@ module Bddgen
         puts "❌ Erro ao criar caso no TestLink: #{e.message}"
       end
     end
-  end
 end

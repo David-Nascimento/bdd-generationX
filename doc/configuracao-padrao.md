@@ -30,14 +30,14 @@ Dado que estou na tela de login
 Quando preencho email e senha válidos
 Então vejo a tela inicial
 
+[SUCCESS]
+Quando tento logar com "<email>" e "<senha>"
+Então recebo <resultado esperado>
+
 [EXAMPLES]
 | email            | senha   | resultado esperado      |
 | user@site.com    | 123456  | login realizado         |
 | errado@site.com  | senha   | credenciais inválidas   |
-
-[SUCCESS]
-Quando tento logar com "<email>" e "<senha>"
-Então recebo <resultado esperado>
 ```
 
 🧠 3. Crie um script para executar a gem

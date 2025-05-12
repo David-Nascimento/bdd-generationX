@@ -1,6 +1,6 @@
 require 'jira-ruby'
 
-module Bddgen
+module Bddgenx
   module Integrations
     class Jira
       def initialize(options = {})

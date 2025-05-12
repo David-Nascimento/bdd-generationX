@@ -34,3 +34,4 @@ doc/
 # VSCode
 .vscode/
 backup/
+.idea

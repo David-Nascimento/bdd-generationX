@@ -26,10 +26,10 @@ module Bddgenx
           conector = conectores.find { |c| linha.strip.start_with?(c) }
           next unless conector
 
-          corpo             = linha.strip.sub(/^#{conector}\s*/, '')
-          corpo_sanitizado  = corpo.gsub(/"(<[^>]+>)"/, '\1')
+          corpo = linha.strip.sub(/^#{conector}\s*/, '')
+          corpo_sanitizado = corpo.gsub(/"(<[^>]+>)"/, '\1')
 
-          # tenta encontrar grupo de exemplos compatível, se existir
+          # Identifica grupo de exemplo compatível
           grupo_exemplo_compat = nil
           if exemplos
             exemplos.each do |tabela|
@@ -42,7 +42,7 @@ module Bddgenx
             end
           end
 
-          # detecta todos os parametros <...> e gera arg list
+          # Detecta parâmetros e gera corpo parametrizado
           nomes_param = corpo.scan(/<([^>]+)>/).flatten.map(&:strip)
           if nomes_param.any?
             corpo_param = corpo_sanitizado.dup
@@ -74,8 +74,17 @@ module Bddgenx
       end
 
       nome_base = File.basename(nome_arquivo_feature, '.feature')
-      caminho   = "steps/#{nome_base}_steps.rb"
-      FileUtils.mkdir_p(File.dirname(caminho))
+
+      # Define caminho de saída: prioriza pasta steps dentro de features/<nome>
+      feature_dir       = File.dirname(nome_arquivo_feature)
+      feature_steps_dir = File.join(feature_dir, 'steps')
+      if Dir.exist?(feature_steps_dir)
+        FileUtils.mkdir_p(feature_steps_dir)
+        caminho = File.join(feature_steps_dir, "#{nome_base}_steps.rb")
+      else
+        FileUtils.mkdir_p('steps')
+        caminho = "steps/#{nome_base}_steps.rb"
+      end
 
       comentario = "# Step definitions para #{File.basename(nome_arquivo_feature)}"
       comentario += idioma == 'en' ? " (English)" : " (Português)"
@@ -98,7 +107,6 @@ module Bddgenx
       true
     end
 
-    # Detecta tipo do parâmetro baseado em exemplos ou default
     def self.detectar_tipo_param(nome_coluna, exemplos)
       return 'string' unless exemplos[:cabecalho].include?(nome_coluna)
 
@@ -112,7 +120,6 @@ module Bddgenx
       'string'
     end
 
-    # Divide múltiplas tabelas de exemplo em grupos
     def self.dividir_examples(tabela_bruta)
       grupos = []
       grupo = []

@@ -11,55 +11,61 @@ module Bddgenx
                    .map(&:strip)
                    .reject(&:empty?)
 
-      # idioma
+      # Detecta idioma (padrão pt, usa en se encontrar '# lang: en')
       idioma = linhas.first.downcase.include?('# lang: en') ? 'en' : 'pt'
       linhas.shift if linhas.first.downcase.start_with?('# lang:')
 
-      # cabeçalho Gherkin: Como / Quero / Para
-      until linhas.empty?
-        linha = linhas.shift
-        break if linha =~ /^(Como |As a )/
+      # Cabeçalho Gherkin (case-insensitive): Como, Eu Como ou As a
+      como = nil
+      linhas.each_with_index do |l, i|
+        if l =~ /^\s*(?:como|eu como|as a)\b/i || l =~ /^\s*(?:COMO|EU COMO|AS A)\b/i
+          como = l
+          linhas = linhas[(i+1)..]
+          break
+        end
       end
-      como  = linha
-      quero = linhas.shift
-      para  = linhas.shift
 
-      historia = {
-        como:     como,
-        quero:    quero,
-        para:     para,
-        idioma:   idioma,
-        grupos:   []   # cada bloco ([TIPO]@tag) será um grupo
-      }
+      # 'Quero' ou 'Eu Quero'
+      quero = nil
+      linhas.each_with_index do |l, i|
+        if l =~ /^\s*(?:quero|eu quero|quero que)\b/i || l =~ /^\s*(?:QUERO|EU QUERO|QUERO QUE)\b/i
+          quero = l
+          linhas = linhas[(i+1)..]
+          break
+        end
+      end
 
+      # 'Para', 'Para Eu' ou 'Para Que'
+      para = nil
+      linhas.each_with_index do |l, i|
+        if l =~ /^\s*(?:para|para eu|para que)\b/i || l =~ /^\s*(?:PRA|PARA EU|PARA QUE)\b/i
+          para = l
+          linhas = linhas[(i+1)..]
+          break
+        end
+      end
+
+      historia = { como: como, quero: quero, para: para, idioma: idioma, grupos: [] }
       exemplos_mode = false
-      tipo_atual    = nil
-      tag_atual     = nil
 
       linhas.each do |linha|
-        # início de bloco EXAMPLES: modo exemplos para último grupo
-        if linha =~ /^\[EXAMPLES\](?:@(\w+))?$/
+        # Início de bloco de exemplos
+        if linha =~ /^\[EXAMPLES\](?:@(\w+))?$/i
           exemplos_mode = true
-          raise "Formato inválido: EXAMPLES sem bloco anterior" if historia[:grupos].empty?
           historia[:grupos].last[:exemplos] = []
           next
         end
 
-        # início de um novo bloco (exceto EXAMPLES)
-        if linha =~ /^\[(#{TIPOS_BLOCOS.join('|')})\](?:@(\w+))?$/
+        # Início de bloco de tipo (SUCCESS, FAILURE etc.)
+        if linha =~ /^\[(#{TIPOS_BLOCOS.join('|')})\](?:@(\w+))?$/i
           exemplos_mode = false
-          tipo_atual = $1
-          tag_atual  = $2
-          historia[:grupos] << {
-            tipo:     tipo_atual,
-            tag:      tag_atual,
-            passos:   [],
-            exemplos: []
-          }
+          tipo = $1.upcase
+          tag  = $2
+          historia[:grupos] << { tipo: tipo, tag: tag, passos: [], exemplos: [] }
           next
         end
 
-        # atribuir linhas ao bloco atual
+        # Atribui linhas ao último grupo existente
         next if historia[:grupos].empty?
         atual = historia[:grupos].last
 

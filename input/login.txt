@@ -1,7 +1,7 @@
 # language: pt
-Como um usuario do sistema
-Quero fazer login com sucesso
-Para acessar minha conta
+EU COMO um usuario do sistema
+QUERO QUE fazer login com sucesso
+PARA acessar minha conta
 
 [SUCCESS]@mobile
 Quando preencho email e senha válidos

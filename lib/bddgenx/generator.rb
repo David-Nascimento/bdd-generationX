@@ -23,7 +23,12 @@ module Bddgenx
         regra:     idioma == 'en' ? 'Rule'             : 'Regra'
       }
 
-      nome_base = historia[:quero].gsub(/[^a-z0-9]/i, '_').downcase
+      frase_quero = historia[:quero].sub(/^\s*quero\s*/i, '')
+      partes     = frase_quero.split(/\s+/)[0,3]    # pega só as 3 primeiras palavras
+      slug       = partes.join('_')
+                         .gsub(/[^a-z0-9_]/i, '')                    # remove caracteres especiais
+                         .downcase
+      nome_base  = slug
       caminho   = "features/#{nome_base}.feature"
 
       conteudo = <<~GHERKIN

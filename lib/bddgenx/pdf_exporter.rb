@@ -19,6 +19,12 @@ module Bddgenx
       end
     end
 
+    def self.sanitizar_utf8_para_ascii(linha)
+      linha.encode('Windows-1252', invalid: :replace, undef: :replace, replace: '?')
+    rescue Encoding::UndefinedConversionError
+      linha.tr('áéíóúãõçâêîôûÁÉÍÓÚÃÕÇÂÊÎÔÛ', 'aeiouaocaeiouAEIOUAOCAEOU')
+    end
+
     def self.exportar_arquivo(origem, destino)
       conteudo = File.read(origem, encoding: 'utf-8')
 
@@ -42,11 +48,6 @@ module Bddgenx
         end
 
         pdf.font_size 10
-        def self.sanitizar_utf8_para_ascii(linha)
-          linha.encode('Windows-1252', invalid: :replace, undef: :replace, replace: '?')
-        rescue Encoding::UndefinedConversionError
-          linha.tr('áéíóúãõçâêîôûÁÉÍÓÚÃÕÇÂÊÎÔÛ', 'aeiouaocaeiouAEIOUAOCAEOU')
-        end
         pdf.text "📄 #{File.basename(origem)}", style: :bold, size: 14
         pdf.move_down 10
 

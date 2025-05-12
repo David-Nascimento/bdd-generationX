@@ -8,16 +8,17 @@ module Bddgenx
       'en' => %w[Given When Then And But]
     }
 
+    # Gera step definitions a partir da estrutura historia[:grupos]
     def self.gerar_passos(historia, nome_arquivo_feature)
       idioma = historia[:idioma] || 'pt'
       conectores = PADROES[idioma]
       passos_gerados = []
 
       historia[:grupos].each do |grupo|
-        tipo              = grupo[:tipo]
-        passos            = grupo[:passos]
-        exemplos_brutos   = grupo[:exemplos]
-        exemplos = exemplos_brutos&.any? ? dividir_examples(exemplos_brutos) : nil
+        tipo            = grupo[:tipo]
+        passos          = grupo[:passos]
+        exemplos_brutos = grupo[:exemplos]
+        exemplos        = exemplos_brutos&.any? ? dividir_examples(exemplos_brutos) : nil
 
         next unless passos.is_a?(Array) && passos.any?
 
@@ -25,37 +26,35 @@ module Bddgenx
           conector = conectores.find { |c| linha.strip.start_with?(c) }
           next unless conector
 
-          corpo = linha.strip.sub(/^#{conector}\s*/, '')
-          corpo_sanitizado = corpo.gsub(/"(<[^>]+>)"/, '\1')
+          corpo             = linha.strip.sub(/^#{conector}\s*/, '')
+          corpo_sanitizado  = corpo.gsub(/"(<[^>]+>)"/, '\1')
 
+          # tenta encontrar grupo de exemplos compatível, se existir
           grupo_exemplo_compat = nil
-
           if exemplos
             exemplos.each do |tabela|
               cabecalho = tabela.first.gsub('|', '').split.map(&:strip)
-              linhas = tabela[1..].map { |linha| linha.gsub('|', '').split.map(&:strip) }
               if cabecalho.any? { |col| corpo.include?("<#{col}>") }
-                grupo_exemplo_compat = {
-                  cabecalho: cabecalho,
-                  linhas: linhas
-                }
+                linhas = tabela[1..].map { |l| l.gsub('|', '').split.map(&:strip) }
+                grupo_exemplo_compat = { cabecalho: cabecalho, linhas: linhas }
                 break
               end
             end
           end
 
-          if grupo_exemplo_compat
-            parametros = corpo.scan(/<([^>]+)>/).flatten.map(&:strip)
-            corpo_param = corpo_sanitizado.gsub(/<([^>]+)>/) do
-              nome = $1.strip
-              tipo_param = detectar_tipo_param(nome, grupo_exemplo_compat)
-              "{#{tipo_param}}"
+          # detecta todos os parametros <...> e gera arg list
+          nomes_param = corpo.scan(/<([^>]+)>/).flatten.map(&:strip)
+          if nomes_param.any?
+            corpo_param = corpo_sanitizado.dup
+            nomes_param.each do |nome|
+              tipo_param = grupo_exemplo_compat ? detectar_tipo_param(nome, grupo_exemplo_compat) : 'string'
+              corpo_param.gsub!(/<\s*#{Regexp.escape(nome)}\s*>/, "{#{tipo_param}}")
             end
-            args_list = parametros.map { |p| p.gsub(' ', '_') }.join(', ')
-            pending_msg = corpo.gsub(/<([^>]+)>/) { |m| "<#{Regexp.last_match(1).strip}>" }
+            args_list = nomes_param.map { |p| p.gsub(/\s+/, '_') }.join(', ')
+            pending_msg = corpo
           else
             corpo_param = corpo
-            args_list = ''
+            args_list   = ''
             pending_msg = corpo
           end
 
@@ -99,6 +98,7 @@ module Bddgenx
       true
     end
 
+    # Detecta tipo do parâmetro baseado em exemplos ou default
     def self.detectar_tipo_param(nome_coluna, exemplos)
       return 'string' unless exemplos[:cabecalho].include?(nome_coluna)
 
@@ -112,20 +112,19 @@ module Bddgenx
       'string'
     end
 
+    # Divide múltiplas tabelas de exemplo em grupos
     def self.dividir_examples(tabela_bruta)
       grupos = []
-      grupo_atual = []
-
+      grupo = []
       tabela_bruta.each do |linha|
-        if linha.strip =~ /^\|.*\|$/ && grupo_atual.any? && linha.strip == linha.strip.squeeze(' ')
-          grupos << grupo_atual
-          grupo_atual = [linha]
+        if linha.strip =~ /^\|.*\|$/ && grupo.any? && linha.strip == linha.strip.squeeze(' ')
+          grupos << grupo
+          grupo = [linha]
         else
-          grupo_atual << linha
+          grupo << linha
         end
       end
-
-      grupos << grupo_atual unless grupo_atual.empty?
+      grupos << grupo unless grupo.empty?
       grupos
     end
   end

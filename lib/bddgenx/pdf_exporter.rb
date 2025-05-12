@@ -12,8 +12,7 @@ module Bddgenx
         destino = "pdf/#{nome_pdf}.pdf"
         exportar_arquivo(feature_file, destino)
         if File.exist?(destino)
-          puts "⚠️  PDF já existente: #{destino} — pulando geração."
-          return
+          return puts "⚠️  PDF já existente: #{destino} — pulando geração."
         else
           puts "📄 PDF gerado: #{destino}"
         end

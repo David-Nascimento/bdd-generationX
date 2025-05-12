@@ -1,4 +1,5 @@
 # 🧪 Gerador de BDD Automático em Ruby
+[![Gem Version](https://badge.fury.io/rb/bddgenx.svg)](https://badge.fury.io/rb/bddgenx)
 
 Este projeto gera arquivos `.feature` (Gherkin) e `steps.rb` automaticamente a partir de arquivos `.txt` com histórias de usuário, seguindo padrões ISTQB, parametrização com `Examples` e integração com pipelines.
 

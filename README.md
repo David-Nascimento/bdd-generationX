@@ -187,8 +187,4 @@ end
 
 👨‍💻 Autor
 David Nascimento – Projeto de automação BDD com Ruby – 2025
-```yaml
 ---
-
-Pronto para copiar, colar ou subir no GitHub como `README.md`. Deseja que eu prepare um `.zip` com tudo funcionando como entrega final?
-```

@@ -1,34 +1,33 @@
 module Bddgenx
   class Validator
-    TIPOS_CENARIO = %w[
-      SUCCESS
-      FAILURE
-      ERROR
-      EXCEPTION
-      VALIDATION
-      PERMISSION
-      EDGE_CASE
-      PERFORMANCE
-    ]
-
     def self.validar(historia)
-      valido = true
+      erros = []
 
-      if historia[:como].to_s.strip.empty? ||
-         historia[:quero].to_s.strip.empty? ||
-         historia[:para].to_s.strip.empty?
-        puts "❌ História incompleta: 'Como', 'Quero' ou 'Para' está faltando."
-        valido = false
+      unless historia[:como] && historia[:quero] && historia[:para]
+        erros << "❌ Cabeçalho incompleto (Como, Quero, Para obrigatórios)"
       end
 
-      cenarios_presentes = historia[:blocos].keys & TIPOS_CENARIO
-      valido ||= historia[:blocos]["CONTEXT"]&.any? || historia[:regras]&.any?
-      if cenarios_presentes.empty? && !valido
-        puts "❌ Nenhum conteúdo válido detectado (cenários, contexto ou regras)."
+      if historia[:grupos].empty?
+        erros << "❌ Nenhum grupo de blocos detectado"
+      else
+        historia[:grupos].each_with_index do |grupo, idx|
+          if grupo[:passos].empty? && grupo[:exemplos].empty?
+            erros << "❌ Grupo #{idx + 1} do tipo [#{grupo[:tipo]}] está vazio"
+          end
+
+          if grupo[:tipo] == "EXAMPLES" && grupo[:exemplos].none? { |l| l.strip.start_with?('|') }
+            erros << "❌ Grupo de EXAMPLES no bloco #{idx + 1} não contém tabela válida"
+          end
+        end
+      end
+
+      if erros.any?
+        puts "⚠️  Erros encontrados no arquivo:"
+        erros.each { |e| puts "   - #{e}" }
         return false
       end
 
-      valido
+      true
     end
   end
 end

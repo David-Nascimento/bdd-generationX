@@ -13,8 +13,9 @@ module Bddgenx
         if File.exist?(destino)
           puts "⚠️  PDF já existente: #{destino} — pulando geração."
           return
+        else
+          puts "📄 PDF gerado: #{destino}"
         end
-        puts "📄 PDF gerado: #{destino}"
       end
     end
 

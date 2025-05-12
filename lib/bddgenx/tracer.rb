@@ -3,31 +3,43 @@ require 'fileutils'
 
 module Bddgenx
   class Tracer
-    ARQUIVO = 'output/rastreabilidade.csv'
+    def self.adicionar_entrada(historia, nome_arquivo_feature)
+      FileUtils.mkdir_p('output')
+      arquivo_csv = 'output/rastreabilidade.csv'
 
-    def self.adicionar_entrada(historia, caminho_arquivo)
-      FileUtils.mkdir_p("output")
+      cabecalho = ['Funcionalidade', 'Tipo', 'Tag', 'Cenário', 'Passo', 'Origem']
 
-      CSV.open(ARQUIVO, File.exist?(ARQUIVO) ? 'a' : 'w', col_sep: ';') do |csv|
-        unless File.exist?(ARQUIVO)
-          csv << ["Funcionalidade", "Tipo de Teste", "Nome do Cenário", "Arquivo .feature"]
-        end
+      linhas = []
 
-        historia[:blocos].each do |tipo, passos|
-          next if tipo == "CONTEXT" || tipo == "EXAMPLES" || passos.empty?
+      historia[:grupos].each_with_index do |grupo, idx|
+        tipo = grupo[:tipo]
+        tag  = grupo[:tag]
+        passos = grupo[:passos]
 
-          tipo_istqb = tipo.capitalize.gsub('_', ' ').capitalize
-          contexto = passos.first&.gsub(/^(Dado que|Quando|Então|E)/, '')&.strip || "Condição"
-          resultado = passos.last&.gsub(/^(Então|E)/, '')&.strip || "Resultado"
-          nome_cenario = "#{tipo_istqb} - #{contexto} - #{resultado}"
+        nome_funcionalidade = historia[:quero].gsub(/^Quero\s*/, '').strip
+        nome_cenario = "Cenário #{idx + 1}"
 
-          csv << [
-            historia[:quero].sub(/^Quero/, '').strip,
-            tipo_istqb,
+        passos.each do |passo|
+          linhas << [
+            nome_funcionalidade,
+            tipo,
+            tag || '-',
             nome_cenario,
-            caminho_arquivo
+            passo,
+            File.basename(nome_arquivo_feature)
           ]
         end
+      end
+
+      escrever_csv(arquivo_csv, cabecalho, linhas)
+    end
+
+    def self.escrever_csv(caminho, cabecalho, linhas)
+      novo_arquivo = !File.exist?(caminho)
+
+      CSV.open(caminho, 'a+', col_sep: ';', force_quotes: true) do |csv|
+        csv << cabecalho if novo_arquivo
+        linhas.each { |linha| csv << linha }
       end
     end
   end

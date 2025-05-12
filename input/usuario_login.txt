@@ -1,6 +1,6 @@
 # language: pt
 Como um gerente
-Quero gerar relatórios de desempenho
+Quero que meus clientes efetue login
 Para acompanhar o progresso da equipe
 
 [SUCCESS]
@@ -11,19 +11,20 @@ Então sou redirecionado para o dashboard
 Quando informo uma senha incorreta
 Então recebo a mensagem "Credenciais inválidas"
 
-[EXAMPLES]
-| email              | senha       | resultado               |
-| teste@site.com     | 123456      | acesso permitido        |
-| errado@site.com    | senhaincorreta | acesso negado       |
-
 [SUCCESS]
 Quando tento logar com "<email>" e "<senha>"
 Então recebo "<resultado>"
 
 [EXAMPLES]
-| produto        | quantidade | valor unitario |
-| "Camiseta"     | 2          | 49             |
-| "Tênis"        | 1          | 120            |
+| email              | senha       | resultado               |
+| teste@site.com     | 123456      | acesso permitido        |
+| errado@site.com    | senhaincorreta | acesso negado       |
+
 
 [SUCCESS]
-Quando adiciono <produto> com quantidade <quantidade> e valor <valor unitario>
+Quando adiciono "<produto>" com quantidade <quantidade> e valor <valor unitario>
+
+[EXAMPLES]
+| produto        | quantidade | valor unitario |
+| Camiseta     | 2          | 49             |
+| Têni        | 1          | 120            |

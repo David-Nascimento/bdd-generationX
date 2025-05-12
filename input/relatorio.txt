@@ -1,4 +1,8 @@
 # language: pt
+Como um gerente
+Quero ver as metricas por mes
+Para acompanhar o progresso da equipe
+
 [SUCCESS]
 Quando seleciono o "<mês>" atual
 Então o sistema exibe o relatório com <total vendas>

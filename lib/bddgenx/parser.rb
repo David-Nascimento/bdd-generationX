@@ -4,46 +4,69 @@ module Bddgenx
     VALIDATION PERMISSION EDGE_CASE PERFORMANCE
     EXAMPLES REGRA RULE
   ].freeze
+
   class Parser
     def self.ler_historia(caminho_arquivo)
-      linhas = File.readlines(caminho_arquivo, encoding: 'utf-8').map(&:strip).reject(&:empty?)
+      linhas = File.readlines(caminho_arquivo, encoding: 'utf-8')
+                   .map(&:strip)
+                   .reject(&:empty?)
 
-      # Detecta idioma
+      # idioma
       idioma = linhas.first.downcase.include?('# lang: en') ? 'en' : 'pt'
-      linhas.shift if linhas.first.downcase.start_with?('#')
+      linhas.shift if linhas.first.downcase.start_with?('# lang:')
 
-      # Ignora linhas que sejam blocos ou comentários até encontrar Como/Quero/Para
-      cabecalho = []
+      # cabeçalho Gherkin: Como / Quero / Para
       until linhas.empty?
         linha = linhas.shift
-        break if linha.start_with?("Como", "As")  # início da história em pt ou en
+        break if linha =~ /^(Como |As a )/
       end
-      como = linha
+      como  = linha
       quero = linhas.shift
-      para = linhas.shift
+      para  = linhas.shift
 
       historia = {
-        como: como,
-        quero: quero,
-        para: para,
-        blocos: Hash.new { |h, k| h[k] = [] },
-        regras: [],
-        arquivo_origem: caminho_arquivo,
-        idioma: idioma
+        como:     como,
+        quero:    quero,
+        para:     para,
+        idioma:   idioma,
+        grupos:   []   # cada bloco ([TIPO]@tag) será um grupo
       }
 
-      tipo_atual = nil
+      exemplos_mode = false
+      tipo_atual    = nil
+      tag_atual     = nil
 
       linhas.each do |linha|
-        if linha.match?(/^\[(#{TIPOS_BLOCOS.join('|')})\]$/)
-          tipo_atual = linha.gsub(/[\[\]]/, '')
+        # início de bloco EXAMPLES: modo exemplos para último grupo
+        if linha =~ /^\[EXAMPLES\](?:@(\w+))?$/
+          exemplos_mode = true
+          raise "Formato inválido: EXAMPLES sem bloco anterior" if historia[:grupos].empty?
+          historia[:grupos].last[:exemplos] = []
           next
         end
 
-        if %w[REGRA RULE].include?(tipo_atual)
-          historia[:regras] << linha
+        # início de um novo bloco (exceto EXAMPLES)
+        if linha =~ /^\[(#{TIPOS_BLOCOS.join('|')})\](?:@(\w+))?$/
+          exemplos_mode = false
+          tipo_atual = $1
+          tag_atual  = $2
+          historia[:grupos] << {
+            tipo:     tipo_atual,
+            tag:      tag_atual,
+            passos:   [],
+            exemplos: []
+          }
+          next
+        end
+
+        # atribuir linhas ao bloco atual
+        next if historia[:grupos].empty?
+        atual = historia[:grupos].last
+
+        if exemplos_mode
+          atual[:exemplos] << linha
         else
-          historia[:blocos][tipo_atual] << linha if tipo_atual
+          atual[:passos]   << linha
         end
       end
 

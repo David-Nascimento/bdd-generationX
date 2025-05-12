@@ -7,8 +7,9 @@ module Bddgenx
       FileUtils.mkdir_p('pdf')
 
       Dir.glob('features/*.feature').each do |feature_file|
-        nome = File.basename(feature_file, '.feature')
-        destino = "pdf/#{nome}.pdf"
+        base = File.basename(feature_file, '.feature')
+        nome_pdf = camel_case(base)
+        destino = "pdf/#{nome_pdf}.pdf"
         exportar_arquivo(feature_file, destino)
         if File.exist?(destino)
           puts "⚠️  PDF já existente: #{destino} — pulando geração."
@@ -19,10 +20,35 @@ module Bddgenx
       end
     end
 
-    def self.sanitizar_utf8_para_ascii(linha)
-      linha.encode('Windows-1252', invalid: :replace, undef: :replace, replace: '?')
-    rescue Encoding::UndefinedConversionError
-      linha.tr('áéíóúãõçâêîôûÁÉÍÓÚÃÕÇÂÊÎÔÛ', 'aeiouaocaeiouAEIOUAOCAEOU')
+    # Converte string para camelCase, removendo caracteres especiais
+    def self.camel_case(str)
+      # Remove tudo que não for letra ou número ou espaço
+      str = str.gsub(/[^0-9A-Za-z ]/, '')
+      parts = str.split(/ |_/)
+      # Primeira palavra minúscula, demais capitalizadas
+      ([parts.first&.downcase] + parts[1..].map(&:capitalize)).join
+    end
+
+    def self.sanitizar_utf8_para_ascii(texto)
+      if texto.respond_to?(:unicode_normalize)
+        # Decompõe em base + acentos, remove acentos, e garante ASCII
+        texto
+          .unicode_normalize(:nfkd)           # separa letra + marca
+          .chars
+          .reject { |c| c.match?(/\p{Mn}/) }  # descarta marcas de acento
+          .join
+          .encode('ASCII', undef: :replace, replace: '?')
+      else
+        # Fallback simples se por algum motivo unicode_normalize não existir
+        texto
+          .gsub(/[áàâãä]/i, 'a')
+          .gsub(/[éèêë]/i, 'e')
+          .gsub(/[íìîï]/i, 'i')
+          .gsub(/[óòôõö]/i, 'o')
+          .gsub(/[úùûü]/i, 'u')
+          .gsub(/[ç]/i,  'c')
+          .encode('ASCII', undef: :replace, replace: '?')
+      end
     end
 
     def self.exportar_arquivo(origem, destino)
@@ -52,7 +78,7 @@ module Bddgenx
         pdf.move_down 10
 
         conteudo.each_line do |linha|
-          linha = fonte_existe ? linha.strip : sanitizar_utf8_para_ascii(linha.strip)
+          linha = fonte_existe ? linha.strip : sanitizar_utf8_para_ascii(linha.chomp)
 
           case linha
           when /^#/

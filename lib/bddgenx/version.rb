@@ -1,3 +1,3 @@
 module Bddgenx
-  VERSION = "0.1.22-release"
+  VERSION = "0.1.22"
 end

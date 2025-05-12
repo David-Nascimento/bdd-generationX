@@ -58,34 +58,22 @@ rake bddgen:gerar
 📥 Como Escrever um .txt de Entrada
 ```txt
 # language: pt
-Como um cliente do e-commerce
-Quero adicionar produtos ao carrinho
-Para finalizar minha compra com praticidade
+Como um usuario do sistema
+Quero fazer login com sucesso
+Para acessar minha conta
 
-[CONTEXT]
-Dado que estou logado na plataforma
-E tenho produtos disponíveis
+[SUCCESS]@mobile
+Quando preencho email e senha válidos
+Então vejo a tela inicial
 
-[REGRA]
-O carrinho não deve permitir produtos fora de estoque
-E o valor total deve refletir o desconto promocional
-
-[SUCCESS]
-Quando adiciono um produto ao carrinho
-Então ele aparece na listagem do carrinho
-
-[FAILURE]
-Quando tento adicionar um produto esgotado
-Então recebo uma mensagem de "produto indisponível"
+[SUCCESS]@regressivo
+Quando tento logar com "<email>" e "<senha>"
+Então recebo "<resultado>"
 
 [EXAMPLES]
-| produto        | quantidade | total esperado |
-| Camiseta Azul  | 2          | 100            |
-| Tênis Branco   | 1          | 250            |
-
-[SUCCESS]
-Quando adiciono "<produto>" com quantidade <quantidade>
-Então vejo o total <total esperado>
+| email            | senha   | resultado               |
+| user@site.com    | 123456  | login realizado         |
+| errado@site.com  | senha   | credenciais inválidas   |
 ```
 ✅ Blocos Suportados
 [CONTEXT] – contexto comum

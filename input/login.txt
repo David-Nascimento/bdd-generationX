@@ -1,0 +1,21 @@
+# language: pt
+
+Como um usuario do sistema
+Quero fazer login com sucesso
+Para acessar minha conta
+
+[CONTEXT]
+Dado que estou na tela de login
+
+[SUCCESS]
+Quando preencho email e senha válidos
+Então vejo a tela inicial
+
+[SUCCESS]
+Quando tento logar com "<email>" e "<senha>"
+Então recebo "<resultado esperado>"
+
+[EXAMPLES]
+| email            | senha   | resultado esperado      |
+| user@site.com    | 123456  | login realizado         |
+| errado@site.com  | senha   | credenciais inválidas   |

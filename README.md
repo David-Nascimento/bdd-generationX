@@ -10,6 +10,12 @@ bdd_generator/
 ├── doc/
 │   ├── configuracao-padra.md
 │   └── configuracao-rake.md
+├── assets/
+│       └── fonts/
+│           ├── DejaVuSansMono.ttf
+│           ├── DejaVuSansMono-Bold.ttf
+│           ├── DejaVuSansMono-Oblique.ttf
+│           └── DejaVuSansMono-BoldOblique.ttf
 ├── input/                  # Arquivos .txt com histórias de usuário
 ├── features/               # Arquivos .feature gerados
 ├── steps/                  # Arquivos com step definitions

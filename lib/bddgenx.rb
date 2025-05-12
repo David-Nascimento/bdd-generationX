@@ -34,11 +34,13 @@ arquivos.each do |arquivo_path|
   cont_features += 1 if Bddgenx::Generator.salvar_feature(nome_feature, conteudo_feature)
   cont_steps += 1 if Bddgenx::StepsGenerator.gerar_passos(historia, nome_feature)
 
+ # cria pasta reports raiz
+ FileUtils.mkdir_p('reports')
  Bddgenx::Tracer.adicionar_entrada(historia, nome_feature)
  Bddgenx::PDFExporter.exportar_todos
 end
 puts "\n✅ Processamento finalizado. Arquivos gerados em: features/, steps/, output/"
-puts "🔄 Versões antigas salvas em: backup/"
+puts "🔄 Versões antigas salvas em: reports/backup/"
 
 puts "\n✅ Processamento finalizado:"
 puts "- Arquivos processados: #{cont_total}"

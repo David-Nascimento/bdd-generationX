@@ -4,8 +4,8 @@ require 'fileutils'
 module Bddgenx
   class Tracer
     def self.adicionar_entrada(historia, nome_arquivo_feature)
-      FileUtils.mkdir_p('output')
-      arquivo_csv = 'output/rastreabilidade.csv'
+      FileUtils.mkdir_p('reports/output')
+      arquivo_csv = 'reports/output/rastreabilidade.csv'
 
       cabecalho = ['Funcionalidade', 'Tipo', 'Tag', 'Cenário', 'Passo', 'Origem']
 

@@ -4,12 +4,12 @@ require 'fileutils'
 module Bddgenx
   class PDFExporter
     def self.exportar_todos
-      FileUtils.mkdir_p('pdf')
+      FileUtils.mkdir_p('reports/pdf')
 
       Dir.glob('features/*.feature').each do |feature_file|
         base = File.basename(feature_file, '.feature')
         nome_pdf = camel_case(base)
-        destino  = "pdf/#{nome_pdf}.pdf"
+        destino  = "reports/pdf/#{nome_pdf}.pdf"
 
         if File.exist?(destino)
           puts "⚠️  PDF já existe: #{destino}"

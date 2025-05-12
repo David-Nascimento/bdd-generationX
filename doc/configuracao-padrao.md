@@ -44,7 +44,9 @@ Então recebo <resultado esperado>
 ```ruby
 require 'bddgenx'
 
+# Executa a gem com base no diretório ./input
 arquivos = Dir.glob('input/*.txt')
+
 arquivos.each do |arquivo|
   historia = Bddgenx::Parser.ler_historia(arquivo)
   next unless Bddgenx::Validator.validar(historia)
@@ -55,6 +57,11 @@ arquivos.each do |arquivo|
 
   Bddgenx::StepsGenerator.gerar_passos(historia, nome_feature)
   Bddgenx::Tracer.adicionar_entrada(historia, nome_feature)
+end
+
+# Após gerar todos os arquivos, gera o PDF automaticamente
+if File.exist?('output/rastreabilidade.csv')
+  Bddgenx::PDFExporter.exportar_todos
 end
 
 puts "✅ Arquivos BDD gerados com sucesso!"

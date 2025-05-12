@@ -9,13 +9,15 @@ module Bddgenx
       Dir.glob('features/*.feature').each do |feature_file|
         base = File.basename(feature_file, '.feature')
         nome_pdf = camel_case(base)
-        destino = "pdf/#{nome_pdf}.pdf"
-        exportar_arquivo(feature_file, destino)
+        destino  = "pdf/#{nome_pdf}.pdf"
+
         if File.exist?(destino)
-          return puts "⚠️  PDF já existente: #{destino} — pulando geração."
-        else
-          puts "📄 PDF gerado: #{destino}"
+          puts "⚠️  PDF já existe: #{destino}"
+          next
         end
+
+        exportar_arquivo(feature_file, destino)
+        puts "📄 PDF gerado: #{destino}"
       end
     end
 

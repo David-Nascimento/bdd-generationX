@@ -6,37 +6,31 @@ Este projeto gera arquivos `.feature` (Gherkin) e `steps.rb` automaticamente a p
 
 ## 📂 Estrutura do Projeto
 ```txt
-bddgenx/                      # raiz do repositório
-├── bin/                      # executáveis CLI
-│   └── bddgenx               # script que chama Bddgenx::Runner.executar
-├── lib/                      # código-fonte da gem
-│   ├── bddgenx/              # namespace principal
-│   │   ├── parser.rb
-│   │   ├── validator.rb
-│   │   ├── generator.rb
-│   │   ├── steps_generator.rb
-│   │   ├── tracer.rb
-│   │   ├── backup.rb
-│   │   ├── pdf_exporter.rb
-│   │   └── utils/             # helpers e módulos auxiliares
-│   │       └── verificador.rb
-│   └── bddgenx.rb            # entrypoint: require_relative de tudo
-├── features/                 # specs Cucumber para testar a gem
-│   └── support/              # support files para os testes
-├── spec/ or test/            # unit tests (RSpec, Minitest)
-├── input/                    # exemplos de .txt de usuários
-├── output/                   # artefatos gerados (rastreabilidade.csv, etc.)
-├── pdf/                      # PDFs gerados
-├── backup/                   # backups automáticos
-├── doc/                      # documentação (markdown)
-│   ├── configuracao-padra.md
-│   └── configuracao-rake.md
-├── bddgenx.gemspec           # gemspec
-├── Gemfile                   # dependências de desenvolvimento
-├── Rakefile                  # tarefas: build, test, release, clean…
-├── .gitignore
-└── README.md                 # descrição, instalação, exemplos de uso
-
+bddgenx/  
+├── bin/bddgenx              # CLI executável  
+├── input/                   # .txt de histórias de usuário  
+├── features/                # .feature geradas  
+├── features/<nome>/steps/   # step definitions por feature (se existir)  
+├── reports/                 # todos os artefatos de saída  
+│   ├── backup/              # versões antigas de .feature  
+│   ├── output/              # rastreabilidade.csv  
+│   └── pdf/                 # relatórios camelCase  
+├── lib/  
+│   ├── bddgenx/  
+│   │   ├── parser.rb  
+│   │   ├── validator.rb  
+│   │   ├── generator.rb  
+│   │   ├── steps_generator.rb  
+│   │   ├── tracer.rb  
+│   │   ├── backup.rb  
+│   │   └── pdf_exporter.rb  
+│   └── bddgenx.rb           # Runner que orquestra tudo  
+├── Gemfile  
+├── bddgenx.gemspec  
+├── Rakefile 
+├── VERSION
+├── bump_version.sh  
+└── README.md
 ```
 ## ▶️ Como Executar
 

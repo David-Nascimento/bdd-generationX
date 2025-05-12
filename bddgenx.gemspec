@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.homepage       = "https://github.com/David-Nascimento/bdd-generation"
   spec.license        = "MIT"
 
-  spec.files          = Dir['lib/**/*.rb', 'lib/bddgenx/assets/fonts/*.ttf', 'README.md', 'Rakefile']
+  spec.files          = Dir["lib/**/*.rb", "lib/bddgenx/assets/fonts/*.ttf"] + ["VERSION", "README.md", "Rakefile"]
 
   spec.bindir         = "bin"
   spec.executables    = ["bddgenx"]

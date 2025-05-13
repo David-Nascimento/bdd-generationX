@@ -18,6 +18,8 @@ bddgenx/
 │   └── pdf/                 # relatórios camelCase  
 ├── lib/  
 │   ├── bddgenx/  
+│   │   ├── integrations
+│   │   │   └── jira.rb
 │   │   ├── parser.rb  
 │   │   ├── validator.rb  
 │   │   ├── generator.rb  

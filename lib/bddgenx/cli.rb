@@ -1,5 +1,17 @@
 module Bddgenx
   class Cli
+    def self.confirm(message)
+      print "#{message} "
+      answer = $stdin.gets.to_s.strip.downcase
+      %w[s sim y yes].include?(answer)
+    end
+
+    # Exibe uma mensagem de pergunta e retorna a string digitada pelo usuário
+    def self.ask(message)
+      print "#{message} "
+      $stdin.gets.to_s.strip
+    end
+
     def self.selecionar_arquivos_txt(diretorio)
       arquivos = Dir.glob("#{diretorio}/*.txt")
 

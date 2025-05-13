@@ -3,23 +3,27 @@ require 'fileutils'
 
 module Bddgenx
   class PDFExporter
-    def self.exportar_todos
+    def self.exportar_todos(only_new: false)
       FileUtils.mkdir_p('reports/pdf')
+      generated = []
+      skipped   = []
 
-      Dir.glob('features/*.feature').each do |feature_file|
-        base = File.basename(feature_file, '.feature')
-        nome_pdf = camel_case(base)
-        destino  = "reports/pdf/#{nome_pdf}.pdf"
+      Dir.glob('features/*.feature').each do |feature|
+        nome = File.basename(feature, '.feature')
+        destino = "reports/pdf/#{camel_case(nome)}.pdf"
 
         if File.exist?(destino)
-          puts "⚠️  PDF já existe: #{destino}"
+          skipped << destino
           next
         end
 
-        exportar_arquivo(feature_file, destino)
-        puts "📄 PDF gerado: #{destino}"
+        exportar_arquivo(feature, destino)
+        generated << destino
       end
+
+      return { generated: generated, skipped: skipped }
     end
+
 
     # Converte string para camelCase, removendo caracteres especiais
     def self.camel_case(str)

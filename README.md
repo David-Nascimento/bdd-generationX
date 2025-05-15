@@ -160,21 +160,7 @@ require "rake"
 namespace :bddgenx do
   desc "Gera arquivos .feature e steps a partir de arquivos .txt"
   task :gerar do
-    arquivos = Dir.glob("input/*.txt")
-
-    arquivos.each do |arquivo|
-      historia = Bddgenx::Parser.ler_historia(arquivo)
-      next unless Bddgenx::Validator.validar(historia)
-
-      nome_feature, conteudo = Bddgenx::Generator.gerar_feature(historia)
-      Bddgenx::Backup.salvar_versao_antiga(nome_feature)
-      Bddgenx::Generator.salvar_feature(nome_feature, conteudo)
-
-      Bddgenx::StepsGenerator.gerar_passos(historia, nome_feature)
-      Bddgenx::Tracer.adicionar_entrada(historia, nome_feature)
-    end
-
-    puts "✅ Geração BDD concluída com sucesso!"
+    Bddgenx::Runner.execute
   end
 end
 ```

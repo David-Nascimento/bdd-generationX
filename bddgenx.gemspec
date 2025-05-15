@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.files          = Dir["lib/**/*", "assets/fonts/*.{ttf,otf}"] + ["VERSION", "README.md", "Rakefile"]
 
   spec.bindir         = "bin"
-  spec.executables    = ["bddgenx"]
+  spec.executables    = ["runner"]
   spec.require_paths  = ["lib"]
 
   spec.required_ruby_version = ">= 3.x"

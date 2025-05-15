@@ -9,7 +9,16 @@ require_relative 'pdf_exporter'
 
 module Bddgenx
   class Runner
-    # Retorna lista de arquivos .txt em input/ ou só aqueles baseados em ARGV
+    # Retorna arquivos a processar: usa ARGV ou prompt interativo
+    def self.choose_files(input_dir)
+      if ARGV.any?
+        selecionar_arquivos_txt(input_dir)
+      else
+        choose_input(input_dir)
+      end
+    end
+
+    # Seleciona arquivos .txt via argumentos
     def self.selecionar_arquivos_txt(input_dir)
       ARGV.map do |arg|
         nome = arg.end_with?('.txt') ? arg : "#{arg}.txt"
@@ -22,7 +31,7 @@ module Bddgenx
       end.compact
     end
 
-    # Interativo: permite ao usuário escolher entre os .txt em input/
+    # Prompt interativo único
     def self.choose_input(input_dir)
       files = Dir.glob(File.join(input_dir, '*.txt'))
       if files.empty?
@@ -31,39 +40,26 @@ module Bddgenx
       end
 
       puts "Selecione o arquivo de história para processar:"
-      files.each_with_index do |f, i|
-        puts "#{i+1}. #{File.basename(f)}"
-      end
+      files.each_with_index { |f,i| puts "#{i+1}. #{File.basename(f)}" }
       print "Digite o número correspondente (ou ENTER para todos): "
       choice = STDIN.gets.chomp
-
       return files if choice.empty?
-
       idx = choice.to_i - 1
-      unless idx.between?(0, files.size - 1)
-        warn "❌ Escolha inválida."
-        exit 1
+      unless idx.between?(0, files.size-1)
+        warn "❌ Escolha inválida."; exit 1
       end
       [files[idx]]
     end
 
     def self.execute
-      history_dir = 'input'
-      Dir.mkdir(history_dir) unless Dir.exist?(history_dir)
+      input_dir = 'input'
+      Dir.mkdir(input_dir) unless Dir.exist?(input_dir)
 
-      # Determina quais arquivos processar
-      arquivos = if ARGV.any?
-                   selecionar_arquivos_txt(history_dir)
-                 else
-                   choose_input(history_dir)
-                 end
-
+      arquivos = choose_files(input_dir)
       if arquivos.empty?
-        warn "❌ Nenhum arquivo de história para processar."
-        exit 1
+        warn "❌ Nenhum arquivo de história para processar."; exit 1
       end
 
-      # Contadores e coleções
       total = features = steps = ignored = 0
       skipped_steps = []
       generated_pdfs = []
@@ -75,26 +71,22 @@ module Bddgenx
 
         historia = Parser.ler_historia(arquivo)
         unless Validator.validar(historia)
-          ignored += 1
-          puts "❌ Arquivo inválido: #{arquivo}"
-          next
+          ignored += 1; puts "❌ Arquivo inválido: #{arquivo}"; next
         end
 
-        # Geração de feature
-        feature_path, feature_content = Bddgenx::Generator.gerar_feature(historia)
+        # Gera feature
+        feature_path, feature_content = Generator.gerar_feature(historia)
         Backup.salvar_versao_antiga(feature_path)
-        if Bddgenx::Generator.salvar_feature(feature_path, feature_content)
-          features += 1
-        end
+        features += 1 if Generator.salvar_feature(feature_path, feature_content)
 
-        # Geração de steps
+        # Gera steps
         if StepsGenerator.gerar_passos(feature_path)
           steps += 1
         else
           skipped_steps << feature_path
         end
 
-        # Exportação de PDFs
+        # Exporta PDFs
         FileUtils.mkdir_p('reports')
         results = PDFExporter.exportar_todos(only_new: true)
         generated_pdfs.concat(results[:generated])

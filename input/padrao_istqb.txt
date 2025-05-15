@@ -7,9 +7,7 @@ Para finalizar minha compra com praticidade
 Dado que estou logado na plataforma
 E tenho produtos disponíveis
 
-[REGRA]
-O carrinho não deve permitir produtos fora de estoque
-E o valor total deve refletir o desconto promocional
+
 
 [SUCCESS]
 Quando adiciono um produto ao carrinho
@@ -43,11 +41,11 @@ Então o sistema limita automaticamente a 10 unidades
 Quando adiciono 100 produtos seguidos
 Então o tempo de resposta deve ser inferior a 2 segundos
 
+[SUCCESS]
+Quando adiciono "<produto>" com quantidade <quantidade>
+Então vejo o total <total esperado>
+
 [EXAMPLES]
 | produto        | quantidade | total esperado |
 | Camiseta Azul  | 2          | 100            |
 | Tênis Branco   | 1          | 250            |
-
-[SUCCESS]
-Quando adiciono "<produto>" com quantidade <quantidade>
-Então vejo o total <total esperado>

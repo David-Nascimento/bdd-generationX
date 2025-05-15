@@ -10,7 +10,13 @@ Então vejo a tela inicial com o nome "Seja Bem vindo"
 [SUCCESS]
 Dado que eu tenho o numero "12"
 E informo mais 20
-Então meu resultado é "32"
+Então meu resultado é "resultado"
+
+[EXAMPLES]
+| resultado         |
+| 32    |
+| 43  |
+
 
 [SUCCESS]
 Quando tento logar com "<email>" e senha "<senha>"

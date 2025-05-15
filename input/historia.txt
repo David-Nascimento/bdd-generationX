@@ -1,4 +1,4 @@
-# language: pt
+# language: en
 Como um gerente
 Quero gerar relatórios de desempenho
 Para acompanhar o progresso da equipe
@@ -16,3 +16,12 @@ E tenho acesso à área de relatórios
 Quando seleciono o "<mês>" atual
 Então o sistema exibe o relatório com "<total vendas>"
 
+[SUCCESS]
+Quando adiciono "<produto>" com quantidade <quantidade> e "Data Nascimento"
+Então vejo o total <total esperado>
+E valor deve ser 123 e 99
+
+[EXAMPLES]
+| produto        | quantidade | total esperado |
+| Camiseta Azul  | 2          | 100            |
+| Tênis Branco   | 1          | 250            |

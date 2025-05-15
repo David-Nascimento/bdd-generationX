@@ -6,7 +6,9 @@ require 'strscan'  # para usar ::StringScanner
 
 module Bddgenx
   class StepsGenerator
-    GHERKIN_KEYS = %w[Dado Quando Então E Mas Given When Then And But].freeze
+    GHERKIN_KEYS_PT = %w[Dado Quando Então E Mas].freeze
+    GHERKIN_KEYS_EN = %w[Given When Then And But].freeze
+    ALL_KEYS        = GHERKIN_KEYS_PT + GHERKIN_KEYS_EN
 
     # Converte texto para camelCase (para nomes de argumentos)
     def self.camelize(str)
@@ -19,12 +21,25 @@ module Bddgenx
     # - <nome>   => {int}
     # - "texto" => {string}
     # - numeros inteiros ou floats soltos => {int}
+    # Respeita idioma de entrada (pt/en) para keywords geradas
     def self.gerar_passos(feature_path)
       raise ArgumentError, "Caminho esperado como String, recebeu #{feature_path.class}" unless feature_path.is_a?(String)
 
       lines = File.readlines(feature_path)
-      step_lines = lines.map(&:strip)
-                        .select { |l| GHERKIN_KEYS.any? { |k| l.start_with?(k + ' ') } }
+      # Detecta idioma no cabeçalho: "# language: pt" ou "# language: en"
+      lang = if (m = lines.find { |l| l =~ /^#\s*language:\s*(\w+)/i })
+               m[/^#\s*language:\s*(\w+)/i, 1].downcase
+             else
+               'pt'
+             end
+
+      pt_to_en = GHERKIN_KEYS_PT.zip(GHERKIN_KEYS_EN).to_h
+      en_to_pt = GHERKIN_KEYS_EN.zip(GHERKIN_KEYS_PT).to_h
+
+      # Seleciona apenas linhas de passo
+      step_lines = lines.map(&:strip).select do |l|
+        ALL_KEYS.any? { |k| l.start_with?(k + ' ') }
+      end
       return false if step_lines.empty?
 
       dir = File.join(File.dirname(feature_path), 'steps')
@@ -34,7 +49,13 @@ module Bddgenx
       content = +"# encoding: utf-8\n# Auto-generated step definitions for #{File.basename(feature_path)}\n\n"
 
       step_lines.each do |line|
-        keyword, rest = line.split(' ', 2)
+        # Extrai keyword original e resto do passo
+        orig_kw, rest = line.split(' ', 2)
+        # Converte keyword conforme idioma de entrada
+        kw = case lang
+             when 'en' then pt_to_en[orig_kw] || orig_kw
+             else         en_to_pt[orig_kw] || orig_kw
+             end
         raw = rest.dup
 
         scanner = ::StringScanner.new(rest)
@@ -54,7 +75,7 @@ module Bddgenx
             scanner.scan(/"([^"<>]+)"/)
             tokens << scanner[1]
             pattern << '{string}'
-          elsif scanner.check(/\d+(?:\.\d+)?/)  # inteiros ou floats soltos
+          elsif scanner.check(/\d+(?:\.\d+)?/)
             num = scanner.scan(/\d+(?:\.\d+)?/)
             tokens << num
             pattern << '{int}'
@@ -65,10 +86,9 @@ module Bddgenx
 
         # Escapa aspas no padrão final
         safe_pattern = pattern.gsub('"', '\\"')
-        signature = "#{keyword}(\"#{safe_pattern}\")"
+        signature = "#{kw}(\"#{safe_pattern}\")"
 
         if tokens.any?
-          # nomeia argumentos args1, args2, etc.
           args = tokens.each_index.map { |i| "args#{i+1}" }.join(', ')
           signature += " do |#{args}|"
         else

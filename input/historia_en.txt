@@ -1,12 +1,14 @@
-# language: pt
+# language: en
 Como um administrador
 Quero acessar o painel de controle
 Para gerenciar os usuários
 
-[RULE]
-Apenas admins devem acessar
-
 [SUCCESS]
-Dado que estou logado como administrador
-Quando clico em "Painel de controle"
-Então vejo as opções de administração
+Quando adiciono "<produto>" com quantidade <quantidade> e "Data Nascimento"
+Então vejo o total <total esperado>
+E valor deve ser 123 e 99
+
+[EXAMPLES]
+| produto        | quantidade | total esperado |
+| Camiseta Azul  | 2          | 100            |
+| Tênis Branco   | 1          | 250            |

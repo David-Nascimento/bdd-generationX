@@ -1,6 +1,5 @@
 source "https://rubygems.org"
 
-gem 'jira-ruby'
 gem 'prawn'
 gem 'prawn-table'
 gem 'prawn-svg'

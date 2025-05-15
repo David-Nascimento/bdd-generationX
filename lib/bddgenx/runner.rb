@@ -81,9 +81,9 @@ module Bddgenx
         end
 
         # Geração de feature
-        feature_path, feature_content = Generator.gerar_feature(historia)
+        feature_path, feature_content = Bddgenx::Generator.gerar_feature(historia)
         Backup.salvar_versao_antiga(feature_path)
-        if Generator.salvar_feature(feature_path, feature_content)
+        if Bddgenx::Generator.salvar_feature(feature_path, feature_content)
           features += 1
         end
 

@@ -8,7 +8,12 @@ Quando preencho email e senha válidos
 Então vejo a tela inicial com o nome "Seja Bem vindo"
 
 [SUCCESS]
-Quando tento logar com "<email>" e "<senha>" e "Data" e "Nascimento"
+Dado que eu tenho o numero "12"
+E informo mais 20
+Então meu resultado é "32"
+
+[SUCCESS]
+Quando tento logar com "<email>" e senha "<senha>"
 Então recebo "<resultado>"
 
 [EXAMPLES]

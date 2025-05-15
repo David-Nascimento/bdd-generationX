@@ -11,9 +11,16 @@ module Bddgenx
                    .map(&:strip)
                    .reject(&:empty?)
 
-      # Detecta idioma (padrão pt, usa en se encontrar '# lang: en')
-      idioma = linhas.first.downcase.include?('# lang: en') ? 'en' : 'pt'
-      linhas.shift if linhas.first.downcase.start_with?('# lang:')
+      # Detecta idioma: aceita "# lang: en" ou "# language: en"
+      primeira = linhas.first.to_s.downcase
+      if primeira =~ /^#\s*lang(?:uage)?\s*:\s*en/
+        idioma = 'en'
+        linhas.shift
+      else
+        idioma = 'pt'
+        # se quiser suportar "# language: pt" também:
+        linhas.shift if primeira =~ /^#\s*lang(?:uage)?\s*:\s*pt/
+      end
 
       # Cabeçalho Gherkin (case-insensitive): Como, Eu Como ou As a
       como = nil

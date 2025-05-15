@@ -1,73 +1,55 @@
 require 'fileutils'
+require_relative 'utils/tipo_param'
 
 module Bddgenx
   class Generator
-    TIPOS_ISTQB = {
-      "SUCCESS"     => "Teste Positivo",
-      "FAILURE"     => "Teste Negativo",
-      "ERROR"       => "Teste de Erro",
-      "EXCEPTION"   => "Teste de Exceção",
-      "VALIDATION"  => "Teste de Validação",
-      "PERMISSION"  => "Teste de Permissão",
-      "EDGE_CASE"   => "Teste de Limite",
-      "PERFORMANCE" => "Teste de Desempenho"
-    }.freeze
+    # Gera .feature diretamente baseado no arquivo .txt, sem alterar placeholders
+    # Exibe todos os passos e exemplos conforme fornecidos
+    def self.gerar_feature(input, override_path = nil)
+      historia = input.is_a?(String) ? Parser.ler_historia(input) : input
+      nome_base = historia[:quero].gsub(/[^a-z0-9]/i, '_').downcase.split('_',3)[0,3].join('_')
+      caminho   = override_path.is_a?(String) ? override_path : "features/#{nome_base}.feature"
 
-    def self.gerar_feature(historia)
-      idioma = historia[:idioma]
+      idioma   = historia[:idioma] || 'pt'
       palavras = {
-        contexto:  idioma == 'en' ? 'Background'       : 'Contexto',
-        cenario:   idioma == 'en' ? 'Scenario'         : 'Cenário',
+        feature:   idioma == 'en' ? 'Feature' : 'Funcionalidade',
+        contexto:  idioma == 'en' ? 'Background' : 'Contexto',
+        cenario:   idioma == 'en' ? 'Scenario' : 'Cenário',
         esquema:   idioma == 'en' ? 'Scenario Outline' : 'Esquema do Cenário',
-        exemplos:  idioma == 'en' ? 'Examples'         : 'Exemplos',
-        regra:     idioma == 'en' ? 'Rule'             : 'Regra'
+        exemplos:  idioma == 'en' ? 'Examples' : 'Exemplos',
+        regra:     idioma == 'en' ? 'Rule' : 'Regra'
       }
 
-      frase_quero = historia[:quero].sub(/^\s*quero\s*/i, '')
-      partes     = frase_quero.split(/\s+/)[0,3]    # pega só as 3 primeiras palavras
-      slug       = partes.join('_')
-                         .gsub(/[^a-z0-9_]/i, '')                    # remove caracteres especiais
-                         .downcase
-      nome_base  = slug
-      caminho   = "features/#{nome_base}.feature"
-
-      conteudo = <<~GHERKIN
+      conteudo = <<~GHK
         # language: #{idioma}
-        Funcionalidade: #{historia[:quero].sub(/^Quero\s*/, '')}
+        #{palavras[:feature]}: #{historia[:quero].sub(/^Quero\s*/i,'')}
+      GHK
 
-          #{historia[:como]}
-          #{historia[:quero]}
-          #{historia[:para]}
-
-      GHERKIN
-
-      historia[:grupos].each_with_index do |grupo, idx|
-        tipo     = grupo[:tipo]
-        tag      = grupo[:tag]
-        passos   = grupo[:passos]
-        exemplos = grupo[:exemplos]
-
+      # Gera blocos conforme grupos
+      historia[:grupos].each do |grupo|
+        tipo = grupo[:tipo]
+        tag  = grupo[:tag]
+        passos = grupo[:passos] || []
+        exemplos = grupo[:exemplos] || []
         next if passos.empty?
 
-        linha_tag = ["@#{tipo.downcase}", ("@#{tag}" if tag)].compact.join(' ')
-        possui_parametros = passos.any? { |p| p.include?('<') } && exemplos.any?
+        tag_line = ["@#{tipo.downcase}", ("@#{tag}" if tag)].compact.join(' ')
 
-        if possui_parametros
-          conteudo << "    #{linha_tag}\n"
-          conteudo << "    #{palavras[:esquema]}: Exemplo #{idx + 1}\n"
-          passos.each { |p| conteudo << "      #{p}\n" }
+        if exemplos.any?
+          # Cenario Outline
+          conteudo << "\n    #{tag_line}\n"
+          conteudo << "    #{palavras[:esquema]}: #{tipo.capitalize}\n"
+          passos.each { |p| conteudo << "      #{p.strip}\n" }
           conteudo << "\n      #{palavras[:exemplos]}:\n"
-          exemplos.each { |linha| conteudo << "        #{linha}\n" }
+          exemplos.each do |l|
+            conteudo << "        #{l.strip}\n"
+          end
           conteudo << "\n"
         else
-          nome_teste = TIPOS_ISTQB[tipo] || palavras[:cenario]
-          contexto   = passos.first.gsub(/^(Dado|Quando|Então|E|Mas)\s+/, '').strip
-          resultado  = passos.last .gsub(/^(Dado|Quando|Então|E|Mas)\s+/, '').strip
-          nome_ceno  = "#{nome_teste} - #{contexto} - #{resultado}"
-
-          conteudo << "    #{linha_tag}\n"
-          conteudo << "    #{palavras[:cenario]}: #{nome_ceno}\n"
-          passos.each { |p| conteudo << "      #{p}\n" }
+          # Cenario simples
+          conteudo << "\n    #{tag_line}\n"
+          conteudo << "    #{palavras[:cenario]}: #{tipo.capitalize}\n"
+          passos.each { |p| conteudo << "      #{p.strip}\n" }
           conteudo << "\n"
         end
       end
@@ -75,11 +57,10 @@ module Bddgenx
       [caminho, conteudo]
     end
 
+    # Salva arquivo .feature
     def self.salvar_feature(caminho, conteudo)
       FileUtils.mkdir_p(File.dirname(caminho))
       File.write(caminho, conteudo)
-      puts "✅ Arquivo .feature gerado: #{caminho}"
-      true
     end
   end
 end

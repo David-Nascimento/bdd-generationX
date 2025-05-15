@@ -3,12 +3,12 @@ Como um cliente do sistema
 Quero acessar minha conta
 Para gerenciar meus pedidos com segurança
 
+[RULE]
+A que a senha deve ter no mínimo 6 caracteres
+
 [CONTEXT]
 Dado que o usuário está na tela de login
 E possui uma conta válida
-
-[REGRA]
-A senha deve ter no mínimo 6 caracteres
 
 [SUCCESS]
 Quando tento logar com "<email>" e "<senha>"

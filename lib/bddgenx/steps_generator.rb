@@ -1,138 +1,74 @@
 require 'fileutils'
-require_relative 'utils/verificador'
+require_relative 'utils/tipo_param'
 
 module Bddgenx
   class StepsGenerator
-    PADROES = {
-      'pt' => %w[Dado Quando Então E Mas],
-      'en' => %w[Given When Then And But]
-    }
+    GHERKIN_KEYS = %w[Dado Quando Então E Mas Given When Then And But].freeze
 
-    # Gera step definitions a partir da estrutura historia[:grupos]
-    def self.gerar_passos(historia, nome_arquivo_feature)
-      idioma = historia[:idioma] || 'pt'
-      conectores = PADROES[idioma]
-      passos_gerados = []
+    # Converte texto para camelCase
+    def self.camelize(str)
+      parts = str.gsub(/<|>/, '') # remove < >
+                 .split(/[^a-zA-Z0-9]+/)
+      parts.map.with_index { |w, i| i.zero? ? w.downcase : w.capitalize }.join
+    end
 
-      historia[:grupos].each do |grupo|
-        tipo            = grupo[:tipo]
-        passos          = grupo[:passos]
-        exemplos_brutos = grupo[:exemplos]
-        exemplos        = exemplos_brutos&.any? ? dividir_examples(exemplos_brutos) : nil
+    # Gera step definitions para todos os passos e placeholders dinâmicos
+    def self.gerar_passos(feature_path)
+      raise ArgumentError, "Caminho esperado como String, recebeu #{feature_path.class}" unless feature_path.is_a?(String)
 
-        next unless passos.is_a?(Array) && passos.any?
+      lines = File.readlines(feature_path)
+      # Filtra apenas linhas que iniciam com palavras-chave Gherkin
+      step_lines = lines.map(&:strip).select { |l| GHERKIN_KEYS.any? { |k| l.start_with?(k + ' ') } }
+      return false if step_lines.empty?
 
-        passos.each do |linha|
-          conector = conectores.find { |c| linha.strip.start_with?(c) }
-          next unless conector
+      dir = File.join(File.dirname(feature_path), 'steps')
+      FileUtils.mkdir_p(dir)
+      file = File.join(dir, "#{File.basename(feature_path, '.feature')}_steps.rb")
 
-          corpo = linha.strip.sub(/^#{conector}\s*/, '')
-          corpo_sanitizado = corpo.gsub(/"(<[^>]+>)"/, '\1')
+      content = <<~RUBY
+        # encoding: utf-8
+        # Auto-generated step definitions for #{File.basename(feature_path)}
 
-          # Identifica grupo de exemplo compatível
-          grupo_exemplo_compat = nil
-          if exemplos
-            exemplos.each do |tabela|
-              cabecalho = tabela.first.gsub('|', '').split.map(&:strip)
-              if cabecalho.any? { |col| corpo.include?("<#{col}>") }
-                linhas = tabela[1..].map { |l| l.gsub('|', '').split.map(&:strip) }
-                grupo_exemplo_compat = { cabecalho: cabecalho, linhas: linhas }
-                break
-              end
-            end
-          end
+      RUBY
 
-          # Detecta parâmetros e gera corpo parametrizado
-          nomes_param = corpo.scan(/<([^>]+)>/).flatten.map(&:strip)
-          if nomes_param.any?
-            corpo_param = corpo_sanitizado.dup
-            nomes_param.each do |nome|
-              tipo_param = grupo_exemplo_compat ? detectar_tipo_param(nome, grupo_exemplo_compat) : 'string'
-              corpo_param.gsub!(/<\s*#{Regexp.escape(nome)}\s*>/, "{#{tipo_param}}")
-            end
-            args_list = nomes_param.map { |p| p.gsub(/\s+/, '_') }.join(', ')
-            pending_msg = corpo
-          else
-            corpo_param = corpo
-            args_list   = ''
-            pending_msg = corpo
-          end
+      step_lines.each do |line|
+        # Extrai keyword e resto do texto
+        keyword, rest = line.split(' ', 2)
 
-          passos_gerados << {
-            conector: conector,
-            raw:      pending_msg,
-            param:    corpo_param,
-            args:     args_list,
-            tipo:     tipo
-          } unless passos_gerados.any? { |p| p[:param] == corpo_param }
+        # Detecta placeholders <...> e literais "..."
+        raw = rest.dup
+        placeholders = []
+
+        # Primeiro, trata literais entre aspas
+        rest2 = rest.gsub(/"([^"]+)"/) do
+          placeholders << $1.strip
+          '{string}'
         end
-      end
 
-      if passos_gerados.empty?
-        puts "⚠️  Nenhum passo detectado em: #{nome_arquivo_feature} (arquivo não gerado)"
-        return false
-      end
+        # Em seguida, trata placeholders <nome>
+        rest3 = rest2.gsub(/<([^>]+)>/) do
+          placeholders << $1.strip
+          '{string}'
+        end
 
-      nome_base = File.basename(nome_arquivo_feature, '.feature')
-
-      # Define caminho de saída: prioriza pasta steps dentro de features/<nome>
-      feature_dir       = File.dirname(nome_arquivo_feature)
-      feature_steps_dir = File.join(feature_dir, 'steps')
-      if Dir.exist?(feature_steps_dir)
-        FileUtils.mkdir_p(feature_steps_dir)
-        caminho = File.join(feature_steps_dir, "#{nome_base}_steps.rb")
-      else
-        FileUtils.mkdir_p('steps')
-        caminho = "steps/#{nome_base}_steps.rb"
-      end
-
-      comentario = "# Step definitions para #{File.basename(nome_arquivo_feature)}"
-      comentario += idioma == 'en' ? " (English)" : " (Português)"
-      conteudo = "#{comentario}\n\n"
-
-      passos_gerados.each do |passo|
-        conteudo += <<~STEP
-          #{passo[:conector]}('#{passo[:param]}') do#{passo[:args].empty? ? '' : " |#{passo[:args]}|"}
-            pending 'Implementar passo: #{passo[:raw]}'
-          end
-
-        STEP
-      end
-
-      if Bddgenx::Verificador.gerar_arquivo_se_novo(caminho, conteudo)
-        puts "✅ Step definitions gerados: #{caminho}"
-      else
-        puts "⏭️  Steps mantidos: #{caminho}"
-      end
-      true
-    end
-
-    def self.detectar_tipo_param(nome_coluna, exemplos)
-      return 'string' unless exemplos[:cabecalho].include?(nome_coluna)
-
-      idx = exemplos[:cabecalho].index(nome_coluna)
-      valores = exemplos[:linhas].map { |l| l[idx].to_s.strip }
-
-      return 'boolean' if valores.all? { |v| %w[true false].include?(v.downcase) }
-      return 'int'     if valores.all? { |v| v.match?(/^\d+$/) }
-      return 'float'   if valores.all? { |v| v.match?(/^\d+\.\d+$/) }
-
-      'string'
-    end
-
-    def self.dividir_examples(tabela_bruta)
-      grupos = []
-      grupo = []
-      tabela_bruta.each do |linha|
-        if linha.strip =~ /^\|.*\|$/ && grupo.any? && linha.strip == linha.strip.squeeze(' ')
-          grupos << grupo
-          grupo = [linha]
+        # Monta assinatura
+        signature = "#{keyword}(\"#{rest3}\")"
+        if placeholders.any?
+          arg_names = placeholders.map { |p| camelize(p) }
+          signature += " do |#{arg_names.join(', ')}|"
         else
-          grupo << linha
+          signature += ' do'
         end
+
+        # Gera bloco
+        content << signature + "\n"
+        content << "  pending \'Implementar passo: #{raw}\'\n"
+        content << "end\n\n"
       end
-      grupos << grupo unless grupo.empty?
-      grupos
+
+      File.write(file, content)
+      puts "✅ Steps gerados: #{file}"
+      true
     end
   end
 end

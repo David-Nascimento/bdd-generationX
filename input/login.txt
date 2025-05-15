@@ -1,14 +1,14 @@
 # language: pt
 EU COMO um usuario do sistema
-QUERO QUE fazer login com sucesso
+QUERO QUE faça login com sucesso
 PARA acessar minha conta
 
-[SUCCESS]@mobile
+[RULE]
 Quando preencho email e senha válidos
-Então vejo a tela inicial
+Então vejo a tela inicial com o nome "Seja Bem vindo"
 
-[SUCCESS]@regressivo
-Quando tento logar com "<email>" e "<senha>"
+[SUCCESS]
+Quando tento logar com "<email>" e "<senha>" e "Data" e "Nascimento"
 Então recebo "<resultado>"
 
 [EXAMPLES]

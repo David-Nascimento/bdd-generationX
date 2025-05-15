@@ -18,8 +18,6 @@ bddgenx/
 │   └── pdf/                 # relatórios camelCase  
 ├── lib/  
 │   ├── bddgenx/  
-│   │   ├── integrations
-│   │   │   └── jira.rb
 │   │   ├── parser.rb  
 │   │   ├── validator.rb  
 │   │   ├── generator.rb  
@@ -59,11 +57,11 @@ Como um usuario do sistema
 Quero fazer login com sucesso
 Para acessar minha conta
 
-[SUCCESS]@mobile
+[FAILURE]
 Quando preencho email e senha válidos
 Então vejo a tela inicial
 
-[SUCCESS]@regressivo
+[SUCCESS]
 Quando tento logar com "<email>" e "<senha>"
 Então recebo "<resultado>"
 
@@ -179,7 +177,6 @@ namespace :bddgenx do
     puts "✅ Geração BDD concluída com sucesso!"
   end
 end
-
 ```
 
 👨‍💻 Autor

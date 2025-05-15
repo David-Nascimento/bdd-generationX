@@ -1,6 +1,6 @@
 require 'fileutils'
-require_relative 'utils/tipo_param'
 require 'strscan'  # para usar ::StringScanner
+require_relative 'utils/tipo_param'
 
 # lib/bddgenx/steps_generator.rb
 

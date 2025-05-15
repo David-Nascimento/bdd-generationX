@@ -1,6 +1,6 @@
 require 'rake'
 require_relative 'lib/bddgenx.rb'
-require_relative 'lib/bddgenx/pdf_exporter'
+require_relative 'lib/bddgenx/utils/porter'
 require_relative 'lib/bddgenx/integrations/jira'
 require_relative 'lib/bddgenx/integrations/testlink'
 

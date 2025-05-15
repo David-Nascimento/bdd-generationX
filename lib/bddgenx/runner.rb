@@ -1,12 +1,11 @@
 # lib/bddgenx/cli.rb
 require 'fileutils'
-require_relative 'parser'
+require_relative 'utils/parser'
 require_relative 'generator'
-require_relative 'pdf_exporter'
+require_relative 'utils/pdf_exporter'
 require_relative 'steps_generator'
-require_relative 'validator'
-require_relative 'backup'
-require_relative 'pdf_exporter'
+require_relative 'utils/validator'
+require_relative 'utils/backup'
 
 module Bddgenx
   class Runner

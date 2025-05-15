@@ -1,4 +1,4 @@
-# language: en
+# language: pt
 Como um gerente
 Quero gerar relatórios de desempenho
 Para acompanhar o progresso da equipe

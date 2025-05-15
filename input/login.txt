@@ -14,8 +14,8 @@ Então meu resultado é "resultado"
 
 [EXAMPLES]
 | resultado         |
-| 32    |
-| 43  |
+| 32                |
+| 43                |
 
 
 [SUCCESS]

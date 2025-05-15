@@ -8,8 +8,17 @@ module Bddgenx
   class StepsGenerator
     GHERKIN_KEYS = %w[Dado Quando Então E Mas Given When Then And But].freeze
 
+    # Converte texto para camelCase (para nomes de argumentos)
+    def self.camelize(str)
+      parts = str.strip.split(/[^a-zA-Z0-9]+/)
+      parts.map.with_index { |w, i| i.zero? ? w.downcase : w.capitalize }.join
+    end
+
     # Gera step definitions a partir de um arquivo .feature
-    # Placeholders em "<nome>" => string, em <nome> => int, literais "texto" => string
+    # - "<nome>" => {string}
+    # - <nome>   => {int}
+    # - "texto" => {string}
+    # - numeros inteiros ou floats soltos => {int}
     def self.gerar_passos(feature_path)
       raise ArgumentError, "Caminho esperado como String, recebeu #{feature_path.class}" unless feature_path.is_a?(String)
 
@@ -33,11 +42,11 @@ module Bddgenx
         tokens  = []
 
         until scanner.eos?
-          if scanner.check(/"<[^>]+>"/)
+          if scanner.check(/"<([^>]+)>"/)
             scanner.scan(/"<([^>]+)>"/)
             tokens << scanner[1]
             pattern << '{string}'
-          elsif scanner.check(/<[^>]+>/)
+          elsif scanner.check(/<([^>]+)>/)
             scanner.scan(/<([^>]+)>/)
             tokens << scanner[1]
             pattern << '{int}'
@@ -45,15 +54,21 @@ module Bddgenx
             scanner.scan(/"([^"<>]+)"/)
             tokens << scanner[1]
             pattern << '{string}'
+          elsif scanner.check(/\d+(?:\.\d+)?/)  # inteiros ou floats soltos
+            num = scanner.scan(/\d+(?:\.\d+)?/)
+            tokens << num
+            pattern << '{int}'
           else
             pattern << scanner.getch
           end
         end
 
+        # Escapa aspas no padrão final
         safe_pattern = pattern.gsub('"', '\\"')
         signature = "#{keyword}(\"#{safe_pattern}\")"
 
         if tokens.any?
+          # nomeia argumentos args1, args2, etc.
           args = tokens.each_index.map { |i| "args#{i+1}" }.join(', ')
           signature += " do |#{args}|"
         else

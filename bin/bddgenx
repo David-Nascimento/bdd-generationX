@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
-require_relative "../lib/bddgen/cli"
+require_relative "../lib/bddgenx/runner"
 
-Bddgenx::CLI.start
+Bddgenx::Runner.execute

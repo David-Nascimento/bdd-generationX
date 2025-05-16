@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   spec.name           = "bddgenx"
   spec.version        = Bddgenx::VERSION
   spec.add_dependency  "prawn", ">= 2.0"
-  spec.add_dependency  "prawn-table", ">= 0.37.0", "< 0.39"
+  spec.add_dependency  "prawn-table", ">= 0.2.0"
   spec.add_dependency  "prawn-svg", ">= 0.2.2"
   spec.authors        = ["David Nascimento"]
   spec.email          = ["halison700@gmail.com"]

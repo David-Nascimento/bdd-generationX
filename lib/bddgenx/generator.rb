@@ -55,7 +55,7 @@ module Bddgenx
         if exemplos.any?
           # Scenario Outline
           conteudo << "    #{tag_line}\n"
-          conteudo << "    #{palavras[:esquema]}: Exemplo #{idx+1}\n"
+          conteudo << "    #{palavras[:esquema]}: #{historia[:quero]}\n"
 
           # Renderiza cada passo, mapeando connector mesmo se não for Gherkin padrão
           passos.each do |p|

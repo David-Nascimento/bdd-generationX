@@ -4,12 +4,12 @@ require 'rubygems'  # para Gem.loaded_specs
 
 module Bddgenx
   class FontLoader
-    # Retorna o diretório assets/fonts dentro da gem, mesmo em dev local
+    # Retorna o diretório assets/fonts dentro da gem
     def self.fonts_path
-      File.expand_path('../../bddgenx/assets/fonts', __dir__)
+      File.expand_path('../../assets/fonts', __dir__)
     end
 
-    # Retorna famílias de fontes TrueType para Prawn; vazio se faltar arquivos
+    # Carrega famílias de fontes TrueType para Prawn
     def self.families
       base = fonts_path
       return {} unless Dir.exist?(base)
@@ -24,7 +24,7 @@ module Bddgenx
       if files.values.all? { |path| File.file?(path) && File.size(path) > 12 }
         { 'DejaVuSansMono' => files }
       else
-        warn "⚠️ Fontes DejaVuSansMono ausentes ou corrompidas em #{base}."
+        warn "⚠️ Fontes DejaVuSansMono ausentes ou corrompidas em #{base}. Usando fallback Courier."
         {}
       end
     end

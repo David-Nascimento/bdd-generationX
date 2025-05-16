@@ -13,15 +13,30 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="addressable (v2.8.7, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="bigdecimal (v3.1.9, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="builder (v3.3.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="bundler (v2.6.8, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="css_parser (v1.21.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="cucumber (v9.2.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="cucumber-ci-environment (v10.0.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="cucumber-core (v13.0.3, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="cucumber-cucumber-expressions (v17.1.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="cucumber-gherkin (v27.0.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="cucumber-html-formatter (v21.9.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="cucumber-messages (v22.0.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="cucumber-tag-expressions (v6.1.2, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.6.2, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="ffi (v1.17.2, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="matrix (v0.4.2, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="mini_mime (v1.1.5, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="multi_test (v1.1.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="open3 (v0.2.1, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="pdf-core (v0.10.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="prawn (v2.5.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="prawn-svg (v0.37.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="prawn-table (v0.2.2, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="public_suffix (v6.0.2, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rexml (v3.4.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="sys-uname (v1.3.1, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ttfunk (v1.8.0, ruby-3.1.7-p261) [gem]" level="application" />
   </component>
 </module>

@@ -1,4 +1,5 @@
 # Gerador Automático de BDD em Ruby
+[![Gem Version](https://badge.fury.io/rb/bddgenx.svg)](https://badge.fury.io/rb/bddgenx)
 
 ## Visão Geral
 

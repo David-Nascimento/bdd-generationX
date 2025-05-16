@@ -51,6 +51,7 @@ module Bddgenx
     def self.gerar_feature(input, override_path = nil)
       historia = input.is_a?(String) ? Parser.ler_historia(input) : input
       idioma   = historia[:idioma] || 'pt'
+      cont = 1
 
       # Geração do nome base do arquivo
       nome_base = historia[:quero]
@@ -103,7 +104,8 @@ module Bddgenx
         if exemplos.any?
           # Cenário com Esquema
           conteudo << "    #{tag_line}\n"
-          conteudo << "    #{palavras[:esquema]}: #{historia[:quero]}\n"
+          conteudo << "    #{palavras[:esquema]}: Exemplo #{cont} \n"
+          cont += 1
 
           # Passos do cenário
           passos.each do |p|

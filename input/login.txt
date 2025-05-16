@@ -7,10 +7,10 @@ PARA acessar minha conta
 Quando preencho email e senha válidos
 Então vejo a tela inicial com o nome "Seja Bem vindo"
 
-[SUCCESS]
+[SUCCESS]@XPTO-T323
 Dado que eu tenho o numero "12"
 E informo mais 20
-Então meu resultado é "resultado"
+Então meu resultado é <resultado>
 
 [EXAMPLES]
 | resultado         |
@@ -18,7 +18,7 @@ Então meu resultado é "resultado"
 | 43                |
 
 
-[SUCCESS]
+[SUCCESS]@XPTO-F3322
 Quando tento logar com "<email>" e senha "<senha>"
 Então recebo "<resultado>"
 

@@ -13,7 +13,6 @@ Gem::Specification.new do |spec|
   spec.description    = %q{Transforma arquivos .txt com histórias em arquivos .feature, com steps, rastreabilidade e integração com CI/CD.}
   spec.homepage       = "https://github.com/David-Nascimento/bdd-generation"
   spec.license        = "MIT"
-  spec.license        = "RUBY"
 
   spec.files          = Dir["lib/**/*", "assets/fonts/**/*.{ttf,otf}"] + ["VERSION", "README.md", "Rakefile"]
 

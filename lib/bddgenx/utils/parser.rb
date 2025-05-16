@@ -80,7 +80,7 @@ module Bddgenx
       # Processa cada linha restante para blocos e exemplos
       linhas.each do |linha|
         # Início de bloco de exemplos: [EXEMPLO], [EXEMPLOS] ou [EXAMPLES] com tag opcional
-        if linha =~ /^\[(?:EXEMPLO|EXEMPLOS|EXAMPLES)\](?:@(\w+))?$/i
+        if linha =~ /^\[(?:EXEMPLO|EXEMPLOS|EXAMPLES)\](?:@([\w\-]+))?$/i
           exemplos_mode = true
           # Cria array de exemplos no último grupo, se ainda não existir
           historia[:grupos].last[:exemplos] = []
@@ -88,7 +88,7 @@ module Bddgenx
         end
 
         # Início de bloco com tipo definido em TIPOS_BLOCOS e tag opcional
-        if linha =~ /^\[(#{TIPOS_BLOCOS.join('|')})\](?:@(\w+))?$/i
+        if linha =~ /^\[(#{TIPOS_BLOCOS.join('|')})\](?:@([\w\-]+))?$/i
           exemplos_mode = false
           tipo = Regexp.last_match(1).upcase
           tag  = Regexp.last_match(2)

@@ -32,12 +32,6 @@ require 'bddgenx'
 
 # Gera todas as features e steps a partir dos .txt em input/
 Bddgenx::Runner.execute
-
-# Opcional: gerar apenas novos artefatos
-Bddgenx::Runner.execute(only_new: true)
-
-# Opcional: gerar apenas uma feature específica
-Bddgenx::Runner.execute(feature: 'input/minha_historia.txt')
 ```
 
 ## Tarefa Rake (opcional)
@@ -76,8 +70,6 @@ Então vejo a tela inicial
 
 ## Artefatos de QA
 
-* **Rastreabilidade**: `reports/output/rastreabilidade.csv` com colunas:
-  `Funcionalidade, Tipo, Tag, Cenário, Passo, Origem`
 * **Backup**: versões antigas de `.feature` em `reports/backup` com timestamp
 * **PDF**: exporta features em P/B para `reports/pdf` via `PDFExporter`
 

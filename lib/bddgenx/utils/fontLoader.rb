@@ -1,28 +1,46 @@
 # lib/bddgenx/font_loader.rb
+# encoding: utf-8
+#
+# Este arquivo define a classe FontLoader, responsável por localizar e carregar
+# famílias de fontes TrueType para uso com Prawn em geração de PDFs.
+# Busca os arquivos de fonte no diretório assets/fonts dentro da gem.
+
 require 'prawn'
-require 'rubygems'  # para Gem.loaded_specs
+require 'rubygems'  # para Gem.loaded_specs se necessário
 
 module Bddgenx
+  # Gerencia o carregamento de fontes TTF para os documentos PDF.
   class FontLoader
-    # Retorna o diretório assets/fonts dentro da gem
+    # Retorna o caminho absoluto para a pasta assets/fonts dentro da gem
+    #
+    # @return [String] Caminho completo para o diretório de fontes
     def self.fonts_path
       File.expand_path('../../assets/fonts', __dir__)
     end
 
-    # Carrega famílias de fontes TrueType para Prawn
+    # Cria o hash de famílias de fontes para registro no Prawn
+    #
+    # Verifica se os arquivos de fonte DejaVuSansMono incluem normal, bold,
+    # italic e bold_italic e têm tamanho mínimo aceitável.
+    # Se estiverem ausentes ou corrompidas, retorna hash vazio para usar fallback.
+    #
+    # @return [Hash{String => Hash<Symbol, String>}]
+    #   - Chave: nome da família ('DejaVuSansMono')
+    #   - Valor: mapa de estilos (:normal, :bold, :italic, :bold_italic) para os caminhos dos arquivos
     def self.families
       base = fonts_path
       return {} unless Dir.exist?(base)
 
-      files = {
+      arquivos = {
         normal:      File.join(base, 'DejaVuSansMono.ttf'),
         bold:        File.join(base, 'DejaVuSansMono-Bold.ttf'),
         italic:      File.join(base, 'DejaVuSansMono-Oblique.ttf'),
         bold_italic: File.join(base, 'DejaVuSansMono-BoldOblique.ttf')
       }
 
-      if files.values.all? { |path| File.file?(path) && File.size(path) > 12 }
-        { 'DejaVuSansMono' => files }
+      # Verifica existência e tamanho mínimo de cada arquivo
+      if arquivos.values.all? { |path| File.file?(path) && File.size(path) > 12 }
+        { 'DejaVuSansMono' => arquivos }
       else
         warn "⚠️ Fontes DejaVuSansMono ausentes ou corrompidas em #{base}. Usando fallback Courier."
         {}

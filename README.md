@@ -1,142 +1,89 @@
-# 🧪 Gerador de BDD Automático em Ruby
-[![Gem Version](https://badge.fury.io/rb/bddgenx.svg)](https://badge.fury.io/rb/bddgenx)
+# Gerador Automático de BDD em Ruby
 
-Este projeto gera arquivos `.feature` (Gherkin) e `steps.rb` automaticamente a partir de arquivos `.txt` com histórias de usuário, seguindo padrões ISTQB, parametrização com `Examples` e integração com pipelines.
+## Visão Geral
 
----
+Ferramenta Ruby para gerar automaticamente arquivos Gherkin (`.feature`) e definições de passos (`steps.rb`) a partir de histórias em texto. Atende aos padrões ISTQB, suporta parametrização com blocos de exemplos e fornece relatórios de QA (rastreabilidade, backups e PDF).
 
-## 📂 Estrutura do Projeto
-```txt
-bddgenx/  
-├── bin/bddgenx              # CLI executável  
-├── input/                   # .txt de histórias de usuário  
-├── features/                # .feature geradas  
-├── features/<nome>/steps/   # step definitions por feature (se existir)  
-├── reports/                 # todos os artefatos de saída  
-│   ├── backup/              # versões antigas de .feature  
-│   ├── output/              # rastreabilidade.csv  
-│   └── pdf/                 # relatórios camelCase  
-├── lib/  
-│   ├── bddgenx/  
-│   │   ├── parser.rb  
-│   │   ├── validator.rb  
-│   │   ├── generator.rb  
-│   │   ├── steps_generator.rb  
-│   │   ├── tracer.rb  
-│   │   ├── backup.rb  
-│   │   └── pdf_exporter.rb  
-│   └── bddgenx.rb           # Runner que orquestra tudo  
-├── Gemfile  
-├── bddgenx.gemspec  
-├── Rakefile 
-├── VERSION
-├── bump_version.sh  
-└── README.md
+## Instalação
+
+Adicione ao seu `Gemfile`:
+
+```ruby
+gem 'bddgenx'
 ```
-## ▶️ Como Executar
 
-### 🔧 Requisitos
-- Ruby 3.x
-- `bundle install` (caso use gems como `prawn` ou `jira-ruby`)
-
-### 🏁 Comando direto:
+Execute:
 
 ```bash
-ruby main.rb
+bundle install
 ```
 
-🧱 Com Rake:
+Ou instale diretamente:
+
 ```bash
-rake bddgen:gerar
+gem install bddgenx
 ```
 
-📥 Como Escrever um .txt de Entrada
+## Uso no Código
+
+```ruby
+require 'bddgenx'
+
+# Gera todas as features e steps a partir dos .txt em input/
+Bddgenx::Runner.execute
+
+# Opcional: gerar apenas novos artefatos
+Bddgenx::Runner.execute(only_new: true)
+
+# Opcional: gerar apenas uma feature específica
+Bddgenx::Runner.execute(feature: 'input/minha_historia.txt')
+```
+
+## Tarefa Rake (opcional)
+
+Em um projeto Rails ou Ruby com Rake, adicione ao `Rakefile`:
+
+```ruby
+require 'bddgenx'
+require 'rake'
+
+namespace :bddgenx do
+  desc 'Gera .feature e steps a partir de histórias em input/'
+  task :gerar do
+    Bddgenx::Runner.execute
+  end
+end
+```
+
+## Formato do Arquivo de Entrada (`.txt`)
+
 ```txt
 # language: pt
-Como um usuario do sistema
-Quero fazer login com sucesso
+Como um usuário do sistema
+Quero fazer login
 Para acessar minha conta
 
-[FAILURE]
-Quando preencho email e senha válidos
-Então vejo a tela inicial
-
 [SUCCESS]
-Quando tento logar com "<email>" e "<senha>"
-Então recebo "<resultado>"
+Quando preencho <email> e <senha>
+Então vejo a tela inicial
 
 [EXAMPLES]
 | email            | senha   | resultado               |
 | user@site.com    | 123456  | login realizado         |
 | errado@site.com  | senha   | credenciais inválidas   |
 ```
-✅ Blocos Suportados
-[CONTEXT] – contexto comum
 
-[SUCCESS] – cenário positivo
+## Artefatos de QA
 
-[FAILURE] – cenário negativo
+* **Rastreabilidade**: `reports/output/rastreabilidade.csv` com colunas:
+  `Funcionalidade, Tipo, Tag, Cenário, Passo, Origem`
+* **Backup**: versões antigas de `.feature` em `reports/backup` com timestamp
+* **PDF**: exporta features em P/B para `reports/pdf` via `PDFExporter`
 
-[ERROR], [EXCEPTION], [PERFORMANCE], etc.
+## Integração CI/CD
 
-[REGRA] ou [RULE] – regras de negócio
+Exemplo de GitHub Actions:
 
-[EXAMPLES] – tabela de dados para Scenario Outline
-
-🧠 Saída esperada (feature)
-```gherkin
-# language: pt
-Funcionalidade: adicionar produtos ao carrinho
-
-  Como um cliente do e-commerce
-  Quero adicionar produtos ao carrinho
-  Para finalizar minha compra com praticidade
-
-  Regra: O carrinho não deve permitir produtos fora de estoque
-    E o valor total deve refletir o desconto promocional
-
-  Contexto:
-    Dado que estou logado na plataforma
-    E tenho produtos disponíveis
-
-  @success
-  Cenário: Teste Positivo - adiciono um produto ao carrinho - ele aparece na listagem do carrinho
-    Quando adiciono um produto ao carrinho
-    Então ele aparece na listagem do carrinho
-
-  Esquema do Cenário: Gerado a partir de dados de exemplo
-    Quando adiciono "<produto>" com quantidade <quantidade>
-    Então vejo o total <total esperado>
-
-    Exemplos:
-      | produto        | quantidade | total esperado |
-      | Camiseta Azul  | 2          | 100            |
-      | Tênis Branco   | 1          | 250            |
-```
-
-🧩 Step Definitions geradas
-```ruby
-Quando('adiciono "<produto>" com quantidade <quantidade>') do |produto, quantidade|
-  pending 'Implementar passo: adiciono "<produto>" com quantidade <quantidade>'
-end
-
-Então('vejo o total <total esperado>') do |total_esperado|
-  pending 'Implementar passo: vejo o total <total esperado>'
-end
-```
-🧾 Rastreabilidade
-- Gera automaticamente um CSV em output/rastreabilidade.csv com:
-- Nome do cenário
-- Tipo (SUCCESS, FAILURE, etc.)
-- Caminho do .feature
-- Origem do .txt
-
-🔄 Backup
-Toda vez que um .feature existente for sobrescrito, a versão anterior é salva em:
-```
-backup/
-```
-✅ Execução em CI/CD (GitHub Actions)
 ```yaml
 jobs:
   gerar_bdd:
@@ -145,26 +92,11 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2'
-      - run: ruby main.rb
-```
-⚙️ Alternativa: Usar via Rake
-
-Você também pode executar a gem bddgenx com Rake, como em projetos Rails:
-
-Crie um arquivo Rakefile:
-```ruby
-require "bddgenx"
-require "rake"
-
-namespace :bddgenx do
-  desc "Gera arquivos .feature e steps a partir de arquivos .txt"
-  task :gerar do
-    Bddgenx::Runner.execute
-  end
-end
+          ruby-version: '3.x'
+      - run: bundle install
+      - run: bundle exec ruby -e "require 'bddgenx'; Bddgenx::Runner.execute(only_new: true)"
 ```
 
-👨‍💻 Autor
-David Nascimento – Projeto de automação BDD com Ruby – 2025
----
+## Licença
+
+MIT © 2025 David Nascimento

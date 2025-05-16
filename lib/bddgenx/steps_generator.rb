@@ -1,107 +1,136 @@
-require 'fileutils'
-require 'strscan'  # para usar ::StringScanner
-require_relative 'utils/tipo_param'
-
 # lib/bddgenx/steps_generator.rb
+# encoding: utf-8
+#
+# Este arquivo define a classe StepsGenerator, responsável por gerar
+# definições de passos do Cucumber a partir de arquivos .feature.
+# Suporta palavras-chave Gherkin em Português e Inglês e parametriza
+# strings e números conforme necessário.
+
+require 'fileutils'
+require 'strscan'  # Para uso de StringScanner
 
 module Bddgenx
+  # Gera arquivos de definições de passos Ruby para Cucumber
+  # com base em arquivos .feature.
   class StepsGenerator
+    # Palavras-chave Gherkin em Português usadas em arquivos de feature
+    # @return [Array<String>]
     GHERKIN_KEYS_PT = %w[Dado Quando Então E Mas].freeze
-    GHERKIN_KEYS_EN = %w[Given When Then And But].freeze
-    ALL_KEYS        = GHERKIN_KEYS_PT + GHERKIN_KEYS_EN
 
-    # Converte texto para camelCase (para nomes de argumentos)
+    # Palavras-chave Gherkin em Inglês usadas em arquivos de feature
+    # @return [Array<String>]
+    GHERKIN_KEYS_EN = %w[Given When Then And But].freeze
+
+    # Conjunto de todas as palavras-chave suportadas (PT + EN)
+    # @return [Array<String>]
+    ALL_KEYS = GHERKIN_KEYS_PT + GHERKIN_KEYS_EN
+
+    # Converte uma string para camelCase, útil para nomes de argumentos
+    #
+    # @param [String] str Texto de entrada a ser convertido
+    # @return [String] Versão em camelCase do texto
     def self.camelize(str)
-      parts = str.strip.split(/[^a-zA-Z0-9]+/)
-      parts.map.with_index { |w, i| i.zero? ? w.downcase : w.capitalize }.join
+      partes = str.strip.split(/[^a-zA-Z0-9]+/)
+      partes.map.with_index { |palavra, i| i.zero? ? palavra.downcase : palavra.capitalize }.join
     end
 
-    # Gera step definitions a partir de um arquivo .feature
-    # - "<nome>" => {string}
-    # - <nome>   => {int}
-    # - "texto" => {string}
-    # - numeros inteiros ou floats soltos => {int}
-    # Respeita idioma de entrada (pt/en) para keywords geradas
+    # Gera definições de passos a partir de um arquivo .feature
+    #
+    # @param [String] feature_path Caminho para o arquivo .feature
+    # @raise [ArgumentError] Se feature_path não for String
+    # @return [Boolean] Retorna true se passos foram gerados, false se não houver passos
     def self.gerar_passos(feature_path)
-      raise ArgumentError, "Caminho esperado como String, recebeu #{feature_path.class}" unless feature_path.is_a?(String)
+      # Valida tipo de entrada
+      unless feature_path.is_a?(String)
+        raise ArgumentError, "Caminho esperado como String, recebeu #{feature_path.class}"
+      end
 
-      lines = File.readlines(feature_path)
+      linhas = File.readlines(feature_path)
+
       # Detecta idioma no cabeçalho: "# language: pt" ou "# language: en"
-      lang = if (m = lines.find { |l| l =~ /^#\s*language:\s*(\w+)/i })
+      lang = if (m = linhas.find { |l| l =~ /^#\s*language:\s*(\w+)/i })
                m[/^#\s*language:\s*(\w+)/i, 1].downcase
              else
                'pt'
              end
 
-      pt_to_en = GHERKIN_KEYS_PT.zip(GHERKIN_KEYS_EN).to_h
-      en_to_pt = GHERKIN_KEYS_EN.zip(GHERKIN_KEYS_PT).to_h
+      # Mapas de tradução entre PT e EN
+      pt_para_en = GHERKIN_KEYS_PT.zip(GHERKIN_KEYS_EN).to_h
+      en_para_pt = GHERKIN_KEYS_EN.zip(GHERKIN_KEYS_PT).to_h
 
-      # Seleciona apenas linhas de passo
-      step_lines = lines.map(&:strip).select do |l|
-        ALL_KEYS.any? { |k| l.start_with?(k + ' ') }
+      # Seleciona linhas que começam com palavras-chave Gherkin
+      linhas_passos = linhas.map(&:strip).select do |linha|
+        ALL_KEYS.any? { |chave| linha.start_with?(chave + ' ') }
       end
-      return false if step_lines.empty?
 
-      dir = File.join(File.dirname(feature_path), 'steps')
-      FileUtils.mkdir_p(dir)
-      file = File.join(dir, "#{File.basename(feature_path, '.feature')}_steps.rb")
+      # Se não encontrar passos, retorna false
+      return false if linhas_passos.empty?
 
-      content = +"# encoding: utf-8\n# Auto-generated step definitions for #{File.basename(feature_path)}\n\n"
+      # Cria diretório e arquivo de saída
+      dir_saida = File.join(File.dirname(feature_path), 'steps')
+      FileUtils.mkdir_p(dir_saida)
+      arquivo_saida = File.join(dir_saida, "#{File.basename(feature_path, '.feature')}_steps.rb")
 
-      step_lines.each do |line|
-        # Extrai keyword original e resto do passo
-        orig_kw, rest = line.split(' ', 2)
-        # Converte keyword conforme idioma de entrada
-        kw = case lang
-             when 'en' then pt_to_en[orig_kw] || orig_kw
-             else         en_to_pt[orig_kw] || orig_kw
-             end
-        raw = rest.dup
+      # Cabeçalho do arquivo gerado
+      conteudo = +"# encoding: utf-8\n"
+      conteudo << "# Definições de passos geradas automaticamente para #{File.basename(feature_path)}\n\n"
 
-        scanner = ::StringScanner.new(rest)
-        pattern = ''
-        tokens  = []
+      linhas_passos.each do |linha|
+        palavra_original, restante = linha.split(' ', 2)
+
+        # Define palavra-chave no idioma de saída
+        chave = case lang
+                when 'en' then pt_para_en[palavra_original] || palavra_original
+                else         en_para_pt[palavra_original] || palavra_original
+                end
+
+        texto_bruto = restante.dup
+        scanner = ::StringScanner.new(restante)
+        padrao = ''
+        tokens = []
 
         until scanner.eos?
           if scanner.check(/"<([^>]+)>"/)
             scanner.scan(/"<([^>]+)>"/)
             tokens << scanner[1]
-            pattern << '{string}'
+            padrao << '{string}'
           elsif scanner.check(/<([^>]+)>/)
             scanner.scan(/<([^>]+)>/)
             tokens << scanner[1]
-            pattern << '{int}'
+            padrao << '{int}'
           elsif scanner.check(/"([^"<>]+)"/)
             scanner.scan(/"([^"<>]+)"/)
             tokens << scanner[1]
-            pattern << '{string}'
+            padrao << '{string}'
           elsif scanner.check(/\d+(?:\.\d+)?/)
-            num = scanner.scan(/\d+(?:\.\d+)?/)
-            tokens << num
-            pattern << '{int}'
+            numero = scanner.scan(/\d+(?:\.\d+)?/)
+            tokens << numero
+            padrao << '{int}'
           else
-            pattern << scanner.getch
+            padrao << scanner.getch
           end
         end
 
-        # Escapa aspas no padrão final
-        safe_pattern = pattern.gsub('"', '\\"')
-        signature = "#{kw}(\"#{safe_pattern}\")"
+        # Escapa aspas no padrão
+        padrao_seguro = padrao.gsub('"', '\\"')
+        assinatura = "#{chave}(\"#{padrao_seguro}\")"
 
+        # Adiciona parâmetros se existirem tokens
         if tokens.any?
-          args = tokens.each_index.map { |i| "args#{i+1}" }.join(', ')
-          signature += " do |#{args}|"
+          argumentos = tokens.each_index.map { |i| "arg#{i+1}" }.join(', ')
+          assinatura << " do |#{argumentos}|"
         else
-          signature += ' do'
+          assinatura << ' do'
         end
 
-        content << signature << "\n"
-        content << "  pending 'Implementar passo: #{raw}'\n"
-        content << "end\n\n"
+        conteudo << "#{assinatura}\n"
+        conteudo << "  pending 'Implementar passo: #{texto_bruto}'\n"
+        conteudo << "end\n\n"
       end
 
-      File.write(file, content)
-      puts "✅ Steps gerados: #{file}"
+      # Escreve arquivo de saída
+      File.write(arquivo_saida, conteudo)
+      puts "✅ Steps gerados: #{arquivo_saida}"
       true
     end
   end

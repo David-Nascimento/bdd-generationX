@@ -14,25 +14,15 @@ require_relative 'utils/validator'
 require_relative 'utils/backup'
 require_relative 'ia/gemini_cliente'
 require_relative 'utils/gherkin_cleaner'
+require_relative 'gemini_generator'
 
 module Bddgenx
   # Ponto de entrada da gem: coordena todo o processo de geração BDD.
   class Runner
-    # Seleciona arquivos de entrada para processamento.
-    # Se houver argumentos em ARGV, usa-os como nomes de arquivos .txt;
-    # caso contrário, exibe prompt interativo para escolha.
-    #
-    # @param input_dir [String] Diretório onde estão os arquivos .txt de histórias
-    # @return [Array<String>] Lista de caminhos para os arquivos a serem processados
     def self.choose_files(input_dir)
       ARGV.any? ? selecionar_arquivos_txt(input_dir) : choose_input(input_dir)
     end
 
-    # Mapeia ARGV para paths de arquivos .txt em input_dir.
-    # Adiciona extensão '.txt' se necessário e filtra arquivos inexistentes.
-    #
-    # @param input_dir [String] Diretório de entrada
-    # @return [Array<String>] Caminhos válidos para processamento
     def self.selecionar_arquivos_txt(input_dir)
       ARGV.map do |arg|
         nome = arg.end_with?('.txt') ? arg : "#{arg}.txt"
@@ -45,12 +35,6 @@ module Bddgenx
       end.compact
     end
 
-    # Exibe prompt interativo para o usuário escolher qual arquivo processar
-    # entre todos os .txt disponíveis em input_dir.
-    #
-    # @param input_dir [String] Diretório de entrada
-    # @exit [1] Se nenhum arquivo for encontrado ou escolha inválida
-    # @return [Array<String>] Um único arquivo escolhido ou todos se ENTER
     def self.choose_input(input_dir)
       files = Dir.glob(File.join(input_dir, '*.txt'))
       if files.empty?
@@ -70,17 +54,6 @@ module Bddgenx
       [files[idx]]
     end
 
-    # Executa todo o fluxo de geração BDD.
-    # - Cria pasta 'input' se não existir
-    # - Seleciona arquivos de histórias
-    # - Para cada arquivo:
-    #   - Lê e valida a história
-    #   - Gera arquivo .feature e salva backup da versão anterior
-    #   - Gera definitions de steps
-    #   - Exporta PDFs novos via PDFExporter
-    # - Exibe resumo final com estatísticas
-    #
-    # @return [void]
     def self.execute
       modo = ENV['BDDGENX_MODE'] || 'static'
 
@@ -92,7 +65,6 @@ module Bddgenx
         warn "❌ Nenhum arquivo de história para processar."; exit 1
       end
 
-      # Inicializa contadores
       total = features = steps = ignored = 0
       skipped_steps = []
       generated_pdfs = []
@@ -102,64 +74,46 @@ module Bddgenx
         total += 1
         puts "\n🔍 Processando: #{arquivo}"
 
-        historia = Parser.ler_historia(arquivo)
-        unless Validator.validar(historia)
-          ignored += 1
-          puts "❌ História inválida: #{arquivo}"
-          next
-        end
-
-        # Geração de feature
-        if modo == 'gemini'
-          puts "🤖 Gerando cenários com IA (Gemini)..."
-          idioma = IA::GeminiCliente.detecta_idioma_arquivo(arquivo)  # Seu método que detecta o idioma no .txt (ex: 'pt' ou 'en')
-          spinner = Thread.new do
-            loop do
-              print "\r⏳ Aguardando resposta da IA "
-              3.times do |i|
-                print "." * (i + 1)
-                sleep(0.4)
-                print "\r⏳ Aguardando resposta da IA#{'.' * (i + 1)}   "
-              end
+        historia =
+          if modo == 'gemini'
+            puts "🤖 Gerando cenários com IA (Gemini)..."
+            begin
+              idioma = GeminiCliente.detecta_idioma_arquivo(arquivo)
+              historia = File.read(arquivo)
+              GeminiCliente.gerar_cenarios(historia, idioma)
+            rescue => e
+              ignored += 1
+              puts "❌ Falha ao gerar com Gemini: #{e.message}"
+              next
             end
-          end
-          begin
-            feature_text = IA::GeminiCliente.gerar_cenarios(historia, idioma)
-          ensure
-            Thread.kill(spinner)
-            print "\r✅ Resposta da IA recebida!        \n"
-          end
-          # feature_text = IA::GeminiCliente.gerar_cenarios(historia, idioma)
-          if feature_text
-            feature_path = Generator.path_para_feature(arquivo)
-            feature_content = Bddgenx::GherkinCleaner.limpar(feature_text)
           else
-            ignored += 1
-            puts "❌ Falha ao gerar com IA: #{arquivo}"
-            next
+            historia = Parser.ler_historia(arquivo)
+            unless Validator.validar(historia)
+              ignored += 1
+              puts "❌ História inválida: #{arquivo}"
+              next
+            end
+            historia
           end
-        else
-          feature_path, feature_content = Generator.gerar_feature(historia)
-        end
+
+        historia_limpa = GherkinCleaner.limpar(historia_ia_gerada)
+        feature_path, feature_content = Generator.gerar_feature(historia_limpa)
 
         Backup.salvar_versao_antiga(feature_path)
         features += 1 if Generator.salvar_feature(feature_path, feature_content)
 
-        # Geração de steps
         if StepsGenerator.gerar_passos(feature_path)
           steps += 1
         else
           skipped_steps << feature_path
         end
 
-        # Exportação de PDF (apenas novos)
         FileUtils.mkdir_p('reports')
         result = PDFExporter.exportar_todos(only_new: true)
         generated_pdfs.concat(result[:generated])
         skipped_pdfs.concat(result[:skipped])
       end
 
-      # Exibe relatório final
       puts "\n✅ Processamento concluído"
       puts "- Total de histórias:    #{total}"
       puts "- Features geradas:      #{features}"

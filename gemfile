@@ -5,3 +5,7 @@ gem 'prawn-table'
 gem 'prawn-svg'
 gem 'open3'
 gem 'cucumber'
+gem 'ruby-openai'
+gem 'dotenv'
+gem 'faraday' # Gemini
+gem 'unicode'

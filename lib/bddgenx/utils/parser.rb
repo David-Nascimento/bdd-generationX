@@ -5,6 +5,7 @@
 # arquivos de história (.txt), extraindo cabeçalho e blocos de passos e exemplos.
 # Utiliza constantes para identificação de tipos de blocos e suporta idiomas
 # Português e Inglês na marcação de idioma e blocos de exemplos.
+require_relative '../ia/gemini_cliente'
 
 module Bddgenx
   # Tipos de blocos reconhecidos na história (.txt), incluindo variações em Português
@@ -42,10 +43,13 @@ module Bddgenx
     def self.ler_historia(caminho_arquivo)
       # Carrega linhas do arquivo, preservando linhas vazias e encoding UTF-8
       linhas = File.readlines(caminho_arquivo, encoding: 'utf-8').map(&:rstrip)
+      # parser.rb (durante leitura do .txt)
+      primeira_linha = File.readlines(caminho_arquivo).first
+      idioma_forcado = primeira_linha&.match(/^#\s*lang(?:uage)?\s*:\s*(\w+)/i)&.captures&.first
 
       # Detecta idioma no topo do arquivo: suporta '# lang: <codigo>' ou '# language: <codigo>'
       idioma = 'pt'
-      if linhas.first =~ /^#\s*lang(?:uage)?\s*:\s*(\w+)/i
+      if linhas.first == idioma_forcado
         idioma = Regexp.last_match(1).downcase
         linhas.shift
       end

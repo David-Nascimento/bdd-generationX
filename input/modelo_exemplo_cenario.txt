@@ -19,7 +19,7 @@ Então recebo "<resultado>"
 | teste@site.com     | 123456      | acesso permitido    |
 | usuario@site.com   | qwerty      | acesso permitido    |
 
-[FAILURE]
+[SUCCESS]
 Quando informo uma senha incorreta
 Então recebo a mensagem "<erro>"
 

@@ -1,4 +1,4 @@
-# language: en
+# language: pt
 Como um administrador
 Quero acessar o painel de controle
 Para gerenciar os usuários

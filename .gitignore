@@ -33,7 +33,7 @@ doc/
 
 # VSCode
 .vscode/
+.idea/
 backup/
-.idea
 
 bddgenx-*.gem

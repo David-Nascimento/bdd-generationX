@@ -4,7 +4,6 @@
 # Este arquivo define a classe Validator, responsável por validar a estrutura
 # de uma história antes de gerar cenários ou arquivos .feature.
 # Verifica presença de cabeçalho obrigatório e integridade dos grupos de passos.
-
 module Bddgenx
   # Valida objetos de história garantindo que possuam campos e blocos corretos.
   class Validator

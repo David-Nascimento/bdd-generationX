@@ -82,6 +82,7 @@ PLATFORMS
   x64-mingw-ucrt
 
 DEPENDENCIES
+  bigdecimal (~> 3.1.9)
   cucumber
   dotenv
   faraday

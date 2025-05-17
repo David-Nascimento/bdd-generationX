@@ -1,11 +1,17 @@
-require_relative "lib/bddgenx/version"
+require_relative "lib/bddgenx/rb"
 
 Gem::Specification.new do |spec|
   spec.name           = "bddgenx"
   spec.version        = Bddgenx::VERSION
+
   spec.add_dependency  "prawn", ">= 2.0"
   spec.add_dependency  "prawn-table", ">= 0.2.0"
   spec.add_dependency  "prawn-svg", ">= 0.2.2"
+  spec.add_dependency  "ruby-openai", ">= 8.0" # ChatGPT
+  spec.add_dependency  "faraday", ">= 2.13.0" # Gemini
+  spec.add_dependency  "dotenv", ">= 3.1"
+  spec.add_dependency  "unicode", ">= 0.4"
+
   spec.authors        = ["David Nascimento"]
   spec.email          = ["halison700@gmail.com"]
 

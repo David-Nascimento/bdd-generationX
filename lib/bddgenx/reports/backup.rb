@@ -4,10 +4,6 @@
 # Este arquivo define a classe Backup, responsável por criar cópias de segurança
 # de arquivos .feature antes de serem sobrescritos.
 # As cópias são salvas em 'reports/backup' com timestamp no nome.
-
-require 'fileutils'
-require 'time'
-
 module Bddgenx
   # Gerencia a criação de backups de arquivos .feature
   class Backup

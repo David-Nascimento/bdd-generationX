@@ -4,10 +4,6 @@
 # Este arquivo define a classe FontLoader, responsável por localizar e carregar
 # famílias de fontes TrueType para uso com Prawn em geração de PDFs.
 # Busca os arquivos de fonte no diretório assets/fonts dentro da gem.
-
-require 'prawn'
-require 'rubygems'  # para Gem.loaded_specs se necessário
-
 module Bddgenx
   # Gerencia o carregamento de fontes TTF para os documentos PDF.
   class FontLoader

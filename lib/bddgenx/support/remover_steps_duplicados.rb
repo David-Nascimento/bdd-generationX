@@ -1,6 +1,3 @@
-require 'set'
-require 'unicode'
-
 module Bddgenx
   module Utils
     class StepCleaner

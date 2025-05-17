@@ -4,9 +4,7 @@
 # Este arquivo define a classe Parser, responsável por ler e interpretar
 # arquivos de história (.txt), extraindo cabeçalho e blocos de passos e exemplos.
 # Utiliza constantes para identificação de tipos de blocos e suporta idiomas
-# Português e Inglês na marcação de idioma e blocos de exemplos.
-require_relative '../ia/gemini_cliente'
-
+# Português e Inglês na marcação de idioma e blocos de exemplos
 module Bddgenx
   # Tipos de blocos reconhecidos na história (.txt), incluindo variações em Português
   # e Inglês para blocos de exemplo.

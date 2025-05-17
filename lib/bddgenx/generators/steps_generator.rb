@@ -5,11 +5,6 @@
 # definições de passos do Cucumber a partir de arquivos .feature.
 # Suporta palavras-chave Gherkin em Português e Inglês e parametriza
 # strings e números conforme necessário.
-
-require 'fileutils'
-require 'strscan'  # Para uso de StringScanner
-require 'set'
-
 module Bddgenx
   class StepsGenerator
     GHERKIN_KEYS_PT = %w[Dado Quando Então E Mas].freeze

@@ -6,11 +6,6 @@
 # preto e branco.
 # Utiliza a gem Prawn para renderização de texto e tabelas.
 
-require 'prawn'
-require 'prawn/table'
-require 'fileutils'
-require_relative 'font_loader'
-
 # Suprime aviso de internacionalização para fontes AFM internas
 Prawn::Fonts::AFM.hide_m17n_warning = true
 

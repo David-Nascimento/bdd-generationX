@@ -9,3 +9,4 @@ gem 'ruby-openai'
 gem 'dotenv'
 gem 'faraday' # Gemini
 gem 'unicode'
+gem 'bigdecimal', '~> 3.1.9'

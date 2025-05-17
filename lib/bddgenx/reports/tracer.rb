@@ -4,10 +4,6 @@
 # Este arquivo define a classe Tracer, responsável por gerar e manter
 # informações de rastreabilidade de cenários e passos em um arquivo CSV.
 # Útil para auditoria e análise de cobertura de cenários gerados.
-
-require 'csv'
-require 'fileutils'
-
 module Bddgenx
   # Classe para adicionar registros de rastreabilidade a um relatório CSV.
   class Tracer

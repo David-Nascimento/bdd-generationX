@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
-require_relative "../lib/bddgenx/runner"
+require_relative "../lib/bddgenx/generators/runner"
 
 Bddgenx::Runner.execute

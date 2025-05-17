@@ -5,14 +5,6 @@
 # .feature a partir de um hash de história ou de um arquivo de história em texto.
 # Suporta Gherkin em Português e Inglês, inclusão de tags, cenários simples
 # e esquemas de cenário com exemplos.
-
-require 'fileutils'
-require 'set'
-require_relative 'utils/gherkin_cleaner'
-require_relative 'ia/gemini_cliente'
-require_relative 'utils/remover_steps_duplicados'
-# require_relative 'clients/chatgpt_cliente'
-
 module Bddgenx
   class Generator
     GHERKIN_KEYS_PT = %w[Dado Quando Então E Mas].freeze

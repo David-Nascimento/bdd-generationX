@@ -1,6 +1,3 @@
-require 'set'
-require 'unicode'
-
 module Bddgenx
   class GherkinCleaner
     def self.limpar(texto)

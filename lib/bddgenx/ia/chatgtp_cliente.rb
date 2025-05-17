@@ -1,11 +1,17 @@
-# lib/bddgenx/ia/gemini_cliente.rb
+# lib/bddgenx/ia/chatgpt_cliente.rb
 module Bddgenx
   module IA
-    class GeminiCliente
-      GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'.freeze
+    class ChatGptCliente
+      CHATGPT_API_URL = 'https://api.openai.com/v1/chat/completions'.freeze
+      MODEL = 'gpt-4o'
 
       def self.gerar_cenarios(historia, idioma = 'pt')
-        api_key = ENV['GEMINI_API_KEY']
+        api_key = ENV['OPENAI_API_KEY']
+
+        unless api_key
+          warn "❌ API Key do ChatGPT não encontrada no .env (OPENAI_API_KEY)"
+          return fallback_com_gemini(historia, idioma)
+        end
 
         keywords_pt = {
           feature: "Funcionalidade",
@@ -31,9 +37,8 @@ module Bddgenx
 
         keywords = idioma == 'en' ? keywords_en : keywords_pt
 
-        # Prompt base para solicitar saída Gherkin estruturada da IA
         prompt_base = <<~PROMPT
-          Gere cenários BDD no formato Gherkin, usando as palavras-chave de estrutura no idioma "#{idioma}":
+          Gere cenários BDD no formato Gherkin, usando as palavras-chave de estrutura no idioma \"#{idioma}\":
             Feature: #{keywords[:feature]}
             Scenario: #{keywords[:scenario]}
             Scenario Outline: #{keywords[:scenario_outline]}
@@ -48,54 +53,50 @@ module Bddgenx
           História:
           #{historia}
         PROMPT
-        unless api_key
-          warn "❌ API Key do Gemini não encontrada no .env (GEMINI_API_KEY)"
-          return nil
-        end
 
-        uri = URI("#{GEMINI_API_URL}?key=#{api_key}")
-        prompt = prompt_base % { historia: historia }
-
+        uri = URI(CHATGPT_API_URL)
         request_body = {
-          contents: [
+          model: MODEL,
+          messages: [
             {
               role: "user",
-              parts: [{ text: prompt }]
+              content: prompt_base
             }
           ]
         }
 
-        response = Net::HTTP.post(uri, request_body.to_json, { "Content-Type" => "application/json" })
+        headers = {
+          "Content-Type" => "application/json",
+          "Authorization" => "Bearer #{api_key}"
+        }
+
+        response = Net::HTTP.post(uri, request_body.to_json, headers)
 
         if response.is_a?(Net::HTTPSuccess)
           json = JSON.parse(response.body)
+          texto_ia = json.dig("choices", 0, "message", "content")
 
-          unless json["candidates"]&.is_a?(Array) && json["candidates"].any?
-            warn "❌ Resposta da IA sem candidatos válidos:"
-            warn JSON.pretty_generate(json)
-            return nil
-          end
-
-          texto_ia = json["candidates"].first.dig("content", "parts", 0, "text")
           if texto_ia
-            # Sanitiza o texto para garantir formato Gherkin correto
             texto_limpo = Bddgenx::GherkinCleaner.limpar(texto_ia)
             Utils::StepCleaner.remover_steps_duplicados(texto_ia, idioma)
 
-            # Insere a diretiva language dinamicamente com base no idioma detectado
             texto_limpo.sub!(/^# language: .*/, "# language: #{idioma}")
             texto_limpo.prepend("# language: #{idioma}\n") unless texto_limpo.start_with?("# language:")
-
             return texto_limpo
           else
             warn "❌ Resposta da IA sem conteúdo de texto"
             warn JSON.pretty_generate(json)
-            return nil
+            return fallback_com_gemini(historia, idioma)
           end
         else
-          warn "❌ Erro ao chamar Gemini: #{response.code} - #{response.body}"
-          return nil
+          warn "❌ Erro ao chamar ChatGPT: #{response.code} - #{response.body}"
+          return fallback_com_gemini(historia, idioma)
         end
+      end
+
+      def self.fallback_com_gemini(historia, idioma)
+        warn "🔁 Tentando gerar com Gemini como fallback..."
+        GeminiCliente.gerar_cenarios(historia, idioma)
       end
 
       def self.detecta_idioma_arquivo(caminho_arquivo)
@@ -107,7 +108,7 @@ module Bddgenx
           end
         end
 
-        'pt' # padrão
+        'pt'
       end
     end
   end

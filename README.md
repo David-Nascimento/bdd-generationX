@@ -147,6 +147,38 @@ Bddgenx::Runner.execute
 
 ---
 
+## 📦 Geração manual via Rake
+```Ruby
+require_relative 'lib/env' # ajuste conforme seu projeto
+require 'rake'
+
+namespace :bddgenx do
+  desc 'Gera arquivos BDD com IA ou modo estático. Use: rake bddgenx:generate[modo]'
+  task :generate, [:modo] do |_, args|
+    modo = args[:modo]&.downcase&.to_sym || :static
+
+    unless %i[static chatgpt gemini deepseek].include?(modo)
+      puts "❌ Modo inválido: #{modo}"
+      puts "Use: rake bddgenx:generate[static|chatgpt|gemini|deepseek]"
+      exit 1
+    end
+
+    Bddgenx.configure do |config|
+      config.mode = modo
+      config.openai_api_key_env = 'OPENAI_API_KEY'
+      config.gemini_api_key_env = 'GEMINI_API_KEY'
+      config.deepseek_api_key_env = 'DEEPSEEK_API_KEY'
+    end
+
+    ENV['BDDGENX_MODE'] = modo.to_s
+
+    puts "⚙️  Gerando com modo: #{modo}"
+    Bddgenx::Runner.execute
+  end
+end
+
+```
+
 ## 📝 Formato do Arquivo de Entrada (`.txt`)
 
 ```txt

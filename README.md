@@ -3,59 +3,79 @@
 
 ## Visão Geral
 
-Ferramenta Ruby para gerar automaticamente arquivos Gherkin (`.feature`) e definições de passos (`steps.rb`) a partir de histórias em texto. Atende aos padrões ISTQB, suporta parametrização com blocos de exemplos e fornece relatórios de QA (rastreabilidade, backups e PDF).
+Ferramenta Ruby para gerar automaticamente arquivos Gherkin (`.feature`) e definições de passos (`steps.rb`) a partir de histórias em texto. Atende aos padrões ISTQB, suporta parametrização com blocos de exemplos e fornece relatórios de QA (rastreabilidade, backups e PDF). Também suporta geração via IA (OpenAI / Gemini) e configuração por ambiente.
 
-## Estrutura do projeto
+---
+
+## Estrutura do Projeto
+
 ```
 bdd-generation/
-├── .github/                     # Workflows do GitHub Actions
+├── .github/                       # Workflows de CI/CD
 │   └── workflows/
-│       └── main.yml
-├── bin/
-│   └── console                  # Execução local (se necessário)
-├── features/                    # Gherkin gerados automaticamente
-│   └── steps/                   # Steps correspondentes
-├── input/                       # Histórias de entrada
+│       └── main.yml               # Workflow de build/test
+├── bin/                           # Scripts CLI e de configuração
+│   ├── bddgenx                    # Executável CLI para gerar BDD (static/chatgpt/gemini)
+│   └── setup.rb                   # Script para preparar o ambiente local (gera .env, input/)
+├── features/                      # Gherkin gerados automaticamente
+│   └── steps/                     # Steps correspondentes aos cenários
+├── input/                         # Arquivos de entrada (.txt com histórias)
 │   ├── historia.txt
 │   ├── historia_en.txt
 │   └── ...
 ├── lib/
 │   ├── bddgenx/
-│   │   ├── generators/
-│   │   │   ├── generator.rb       # Geração de arquivos .feature
-│   │   │   ├── steps_generator.rb # Geração de arquivos de step
-│   │   │   └── runner.rb          # Execução geral conforme modo (static/chatgpt/gemini)
-│   │   ├── ia/
-│   │   │   ├── chatgpt_cliente.rb # Cliente OpenAI
-│   │   │   └── gemini_cliente.rb  # Cliente Gemini
-│   │   ├── reports/
+│   │   ├── generators/            # Lógica de geração de features e execução geral
+│   │   │   ├── generator.rb
+│   │   │   ├── steps_generator.rb
+│   │   │   └── runner.rb
+│   │   │
+│   │   ├── ia/                    # Integração com APIs de IA
+│   │   │   ├── chatgpt_cliente.rb
+│   │   │   └── gemini_cliente.rb
+│   │   │
+│   │   ├── reports/               # Exportação de artefatos QA
 │   │   │   ├── backup.rb
 │   │   │   ├── pdf_exporter.rb
 │   │   │   └── tracer.rb
-│   │   ├── support/
+│   │   │
+│   │   ├── support/               # Utilitários auxiliares e validadores
 │   │   │   ├── font_loader.rb
 │   │   │   ├── gherkin_cleaner.rb
 │   │   │   ├── remover_steps_duplicados.rb
 │   │   │   └── validator.rb
-│   │   ├── configuration.rb       # Configuração global da gem (modo, vars de ambiente)
-│   │   └── version.rb             # Carrega versão a partir do arquivo VERSION
-│   ├── bddgenx.rb                 # Ponto de entrada da gem (requer env)
+│   │   │
+│   │   ├── configuration.rb       # Configuração global da gem (modo, ENV keys)
+│   │   └── version.rb             # Leitura da versão a partir do arquivo VERSION
+│   │
+│   ├── bddgenx.rb                 # Entrada principal da gem (require env)
 │   └── parser.rb                  # Parser de arquivos de entrada
-├── reports/                     # Saídas: PDF, backup, rastreabilidade
-│   ├── pdf/
-│   ├── backup/
-│   └── rastreabilidade/
-├── .env                         # Variáveis de ambiente
-├── .gitignore
-├── bddgenx.gemspec
-├── bump_version.sh
+├── reports/                       # Artefatos gerados
+│   ├── pdf/                       # Features exportadas em PDF
+│   ├── backup/                    # Versões antigas de features
+│   └── rastreabilidade/           # Arquivos de rastreabilidade (se implementado)
+├── spec/                          # Testes unitários RSpec
+│   ├── support/
+│   ├── utils/
+│   ├── ia/
+│   ├── spec_helper.rb
+│   └── version_spec.rb
+├── .env                           # Arquivo com chaves reais (não versionado)
+├── .env.example                   # Modelo para configurar variáveis de ambiente
+├── .gitignore                     # Arquivos/pastas ignoradas pelo Git
+├── bddgenx.gemspec                # Especificação da gem
+├── bump_version.sh               # Script de versionamento automático (semântico)
 ├── Gemfile
 ├── Gemfile.lock
 ├── LICENSE
-├── Rakefile
-├── README.md
-└── VERSION
+├── Rakefile                       # Tarefas automatizadas (static, chatgpt, gemini)
+├── README.md                      # Documentação principal do projeto
+└── VERSION                        # Arquivo contendo a versão atual da gem
+
 ```
+
+---
+
 ## Instalação
 
 Adicione ao seu `Gemfile`:
@@ -64,83 +84,70 @@ Adicione ao seu `Gemfile`:
 gem 'bddgenx'
 ```
 
-Execute:
-
-```bash
-bundle install
-```
-
 Ou instale diretamente:
 
 ```bash
 gem install bddgenx
 ```
 
-## Uso no Código
+---
+
+## 🔧 Configuração
+
+### 1. Instale dependências
+
+```bash
+bundle install
+```
+
+### 2. Configure seu `.env`
+
+```bash
+cp .env.example .env
+```
+
+Edite o `.env`:
+
+```env
+OPENAI_API_KEY=sk-...
+GEMINI_API_KEY=ya29-...
+BDDGENX_MODE=chatgpt   # static | chatgpt | gemini
+```
+
+> 🔐 Dica: nunca versionar o `.env` — ele já está no `.gitignore`
+
+---
+
+## 🚀 Uso com Rake
+
+Com os arquivos `.txt` dentro da pasta `input/`, execute:
+
+```bash
+rake bddgenx:static     # geração sem IA
+rake bddgenx:chatgpt    # usando ChatGPT
+rake bddgenx:gemini     # usando Gemini
+```
+
+> O modo pode ser sobrescrito via ENV ou `Bddgenx.configure`
+
+---
+
+## 📦 Geração manual via Ruby
 
 ```ruby
 require 'bddgenx'
 
-require 'bddgenx'
-
-# Configuração
 Bddgenx.configure do |config|
-  config.mode = :chatgpt  # :static, :chatgpt ou :gemini
+  config.mode = :chatgpt
   config.openai_api_key_env = 'OPENAI_API_KEY'
 end
 
-# Executar geração
-Bddgenx::Runner.execute('Minha história de exemplo', idioma: 'pt')
+Bddgenx::Runner.execute
 ```
 
-## Tarefa Rake (opcional)
+---
 
-Em um projeto Rails ou Ruby com Rake, adicione ao `Rakefile`:
-
-```ruby
-require_relative 'lib/env'
-require 'rake'
-require 'bddgenx'
-
-namespace :bddgenx do
-  desc 'Executa a geração BDD usando o modo atual (static, chatgpt, gemini)'
-  task :generate do
-    puts "⚙️  Modo de geração: #{Bddgenx.configuration.mode}"
-    Bddgenx::Runner.execute
-  end
-
-  desc 'Gera features no modo estático (sem IA)'
-  task :static do
-    Bddgenx.configure do |config|
-      config.mode = :static
-    end
-    ENV['BDDGENX_MODE'] = 'static'
-    Rake::Task['bddgenx:generate'].invoke
-  end
-
-  desc 'Gera features usando ChatGPT'
-  task :chatgpt do
-    Bddgenx.configure do |config|
-      config.mode = :chatgpt
-      config.openai_api_key_env = 'OPENAI_API_KEY'
-    end
-    ENV['BDDGENX_MODE'] = 'chatgpt'
-    Rake::Task['bddgenx:generate'].invoke
-  end
-
-  desc 'Gera features usando Gemini'
-  task :gemini do
-    Bddgenx.configure do |config|
-      config.mode = :gemini
-      config.gemini_api_key_env = 'GEMINI_API_KEY'
-    end
-    ENV['BDDGENX_MODE'] = 'gemini'
-    Rake::Task['bddgenx:generate'].invoke
-  end
-end
-```
-
-## Formato do Arquivo de Entrada (`.txt`)
+## 📝 Formato do Arquivo de Entrada (`.txt`)
 
 ```txt
 # language: pt
@@ -153,19 +160,36 @@ Quando preencho <email> e <senha>
 Então vejo a tela inicial
 
 [EXAMPLES]
-| email            | senha   | resultado               |
-| user@site.com    | 123456  | login realizado         |
-| errado@site.com  | senha   | credenciais inválidas   |
+| email            | senha   |
+| user@site.com    | 123456  |
+| errado@site.com  | senha   |
 ```
 
-## Artefatos de QA
+---
 
-* **Backup**: versões antigas de `.feature` em `reports/backup` com timestamp
-* **PDF**: exporta features em P/B para `reports/pdf` via `PDFExporter`
+## 🧪 Setup Rápido para Novos Usuários
 
-## Integração CI/CD
+```bash
+ruby bin/setup.rb
+```
 
-Exemplo de GitHub Actions:
+Esse comando:
+
+- Cria `.env` a partir de `.env.example`
+- Garante que `input/` existe
+
+---
+
+## 🧾 Artefatos Gerados
+
+- ✅ `.feature` → dentro de `features/`
+- ✅ `steps.rb` → dentro de `features/steps/`
+- 🗂️ Backup automático → `reports/backup/`
+- 📄 PDF das features → `reports/pdf/`
+
+---
+
+## ⚙️ CI/CD Exemplo com GitHub Actions
 
 ```yaml
 jobs:
@@ -175,10 +199,14 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.x'
+          ruby-version: '3.1'
       - run: bundle install
-      - run: bundle exec ruby -e "require 'bddgenx'; Bddgenx::Runner.execute(only_new: true)"
+      - run: bundle exec rake bddgenx:chatgpt
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 ```
+
+---
 
 ## Licença
 

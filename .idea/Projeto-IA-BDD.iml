@@ -15,6 +15,7 @@
     <orderEntry type="library" scope="PROVIDED" name="bigdecimal (v3.1.9, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="builder (v3.3.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="bundler (v2.6.8, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="crack (v1.0.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="css_parser (v1.21.1, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="cucumber (v9.2.1, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="cucumber-ci-environment (v10.0.1, ruby-3.1.7-p261) [gem]" level="application" />
@@ -25,12 +26,14 @@
     <orderEntry type="library" scope="PROVIDED" name="cucumber-messages (v22.0.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="cucumber-tag-expressions (v6.1.2, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="diff-lcs (v1.6.2, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="docile (v1.4.1, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="dotenv (v3.1.8, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="event_stream_parser (v1.0.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="faraday (v2.13.1, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="faraday-multipart (v1.1.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="faraday-net_http (v3.4.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ffi (v1.17.2, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="hashdiff (v1.1.2, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="json (v2.12.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="logger (v1.7.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="matrix (v0.4.2, ruby-3.1.7-p261) [gem]" level="application" />
@@ -44,11 +47,21 @@
     <orderEntry type="library" scope="PROVIDED" name="prawn-svg (v0.37.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="prawn-table (v0.2.2, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="public_suffix (v6.0.2, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rake (v13.2.1, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rexml (v3.4.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec (v3.13.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-core (v3.13.3, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-expectations (v3.13.4, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-mocks (v3.13.4, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rspec-support (v3.13.3, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ruby-openai (v8.1.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="simplecov (v0.22.0, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="simplecov-html (v0.13.1, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="simplecov_json_formatter (v0.1.4, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="sys-uname (v1.3.1, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="ttfunk (v1.8.0, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="unicode (v0.4.4.5, ruby-3.1.7-p261) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="uri (v1.0.3, ruby-3.1.7-p261) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="webmock (v3.25.1, ruby-3.1.7-p261) [gem]" level="application" />
   </component>
 </module>

@@ -15,6 +15,8 @@ require 'dotenv'         # Para carregar variáveis de ambiente de arquivos .env
 require 'unicode'        # Para manipulação avançada de strings Unicode (ex: remoção de acentos)
 require 'bigdecimal'     # Para operações matemáticas precisas com decimais
 
+Dotenv.load
+
 # Configura o caminho base do projeto e carrega as gems definidas no Gemfile (se existir)
 require 'bundler/setup' if File.exist?(File.expand_path('../../Gemfile', __FILE__))
 

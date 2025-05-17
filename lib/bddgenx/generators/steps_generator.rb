@@ -5,22 +5,46 @@
 # definições de passos do Cucumber a partir de arquivos .feature.
 # Suporta palavras-chave Gherkin em Português e Inglês e parametriza
 # strings e números conforme necessário.
+
 module Bddgenx
   class StepsGenerator
+    # Palavras-chave Gherkin em Português
     GHERKIN_KEYS_PT = %w[Dado Quando Então E Mas].freeze
+
+    # Palavras-chave Gherkin em Inglês
     GHERKIN_KEYS_EN = %w[Given When Then And But].freeze
+
+    # Conjunto de todas as palavras-chave suportadas
     ALL_KEYS = GHERKIN_KEYS_PT + GHERKIN_KEYS_EN
 
+    ##
+    # Transforma uma string em estilo camelCase.
+    #
+    # @param str [String] A string a ser transformada.
+    # @return [String] A string convertida para camelCase.
+    #
     def self.camelize(str)
       partes = str.strip.split(/[^a-zA-Z0-9]+/)
       partes.map.with_index { |palavra, i| i.zero? ? palavra.downcase : palavra.capitalize }.join
     end
 
+    ##
+    # Gera arquivos de passos do Cucumber a partir de um arquivo .feature.
+    #
+    # O método lê o arquivo, detecta o idioma, extrai os passos,
+    # parametriza as variáveis (números e strings), e escreve os métodos
+    # em um novo arquivo no diretório `steps/`.
+    #
+    # @param feature_path [String] Caminho para o arquivo .feature.
+    # @return [Boolean] Retorna true se os passos forem gerados com sucesso, false se não houver passos.
+    # @raise [ArgumentError] Se o caminho fornecido não for uma String.
+    #
     def self.gerar_passos(feature_path)
       raise ArgumentError, "Caminho esperado como String, recebeu #{feature_path.class}" unless feature_path.is_a?(String)
 
       linhas = File.readlines(feature_path)
 
+      # Detecta o idioma com base na diretiva "# language:"
       lang = if (m = linhas.find { |l| l =~ /^#\s*language:\s*(\w+)/i })
                m[/^#\s*language:\s*(\w+)/i, 1].downcase
              else
@@ -30,6 +54,7 @@ module Bddgenx
       pt_para_en = GHERKIN_KEYS_PT.zip(GHERKIN_KEYS_EN).to_h
       en_para_pt = GHERKIN_KEYS_EN.zip(GHERKIN_KEYS_PT).to_h
 
+      # Seleciona apenas linhas que começam com palavras-chave Gherkin
       linhas_passos = linhas.map(&:strip).select do |linha|
         ALL_KEYS.any? { |chave| linha.start_with?(chave + ' ') }
       end
@@ -48,6 +73,7 @@ module Bddgenx
       linhas_passos.each do |linha|
         palavra_original, restante = linha.split(' ', 2)
 
+        # Tradução de palavras-chave se necessário
         chave = case lang
                 when 'en' then pt_para_en[palavra_original] || palavra_original
                 else           en_para_pt[palavra_original] || palavra_original
@@ -58,6 +84,7 @@ module Bddgenx
         padrao = ''
         tokens = []
 
+        # Analisa e parametriza o conteúdo dos passos
         until scanner.eos?
           if scanner.check(/"<([^>]+)>"/)
             scanner.scan(/"<([^>]+)>"/)
@@ -82,7 +109,7 @@ module Bddgenx
 
         padrao_seguro = padrao.gsub('"', '\\"')
 
-        # Impede duplicatas
+        # Impede criação de métodos duplicados
         next if passos_unicos.include?(padrao_seguro)
 
         passos_unicos << padrao_seguro

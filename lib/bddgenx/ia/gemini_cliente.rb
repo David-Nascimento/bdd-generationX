@@ -1,9 +1,22 @@
 # lib/bddgenx/ia/gemini_cliente.rb
+
 module Bddgenx
   module IA
+    ##
+    # Cliente para interação com a API Gemini do Google para geração
+    # de conteúdo, aqui usado para criar cenários BDD no formato Gherkin.
+    #
     class GeminiCliente
       GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'.freeze
 
+      ##
+      # Gera cenários BDD baseados em uma história, solicitando à API Gemini
+      # o retorno no formato Gherkin com palavras-chave no idioma desejado.
+      #
+      # @param historia [String] Texto base da história para gerar os cenários.
+      # @param idioma [String] Código do idioma, 'pt' por padrão.
+      # @return [String, nil] Cenários no formato Gherkin, ou nil em caso de erro.
+      #
       def self.gerar_cenarios(historia, idioma = 'pt')
         api_key = ENV['GEMINI_API_KEY']
 
@@ -31,7 +44,7 @@ module Bddgenx
 
         keywords = idioma == 'en' ? keywords_en : keywords_pt
 
-        # Prompt base para solicitar saída Gherkin estruturada da IA
+        # Prompt base que instrui a IA a gerar cenários Gherkin no idioma indicado
         prompt_base = <<~PROMPT
           Gere cenários BDD no formato Gherkin, usando as palavras-chave de estrutura no idioma "#{idioma}":
             Feature: #{keywords[:feature]}
@@ -48,23 +61,25 @@ module Bddgenx
           História:
           #{historia}
         PROMPT
+
         unless api_key
           warn "❌ API Key do Gemini não encontrada no .env (GEMINI_API_KEY)"
           return nil
         end
 
         uri = URI("#{GEMINI_API_URL}?key=#{api_key}")
-        prompt = prompt_base % { historia: historia }
 
+        # Estrutura do corpo da requisição para a API Gemini
         request_body = {
           contents: [
             {
               role: "user",
-              parts: [{ text: prompt }]
+              parts: [{ text: prompt_base }]
             }
           ]
         }
 
+        # Executa requisição POST para a API Gemini
         response = Net::HTTP.post(uri, request_body.to_json, { "Content-Type" => "application/json" })
 
         if response.is_a?(Net::HTTPSuccess)
@@ -78,11 +93,11 @@ module Bddgenx
 
           texto_ia = json["candidates"].first.dig("content", "parts", 0, "text")
           if texto_ia
-            # Sanitiza o texto para garantir formato Gherkin correto
+            # Limpeza e sanitização do texto para manter padrão Gherkin
             texto_limpo = Bddgenx::GherkinCleaner.limpar(texto_ia)
             Utils::StepCleaner.remover_steps_duplicados(texto_ia, idioma)
 
-            # Insere a diretiva language dinamicamente com base no idioma detectado
+            # Ajuste da diretiva de idioma na saída gerada
             texto_limpo.sub!(/^# language: .*/, "# language: #{idioma}")
             texto_limpo.prepend("# language: #{idioma}\n") unless texto_limpo.start_with?("# language:")
 
@@ -98,6 +113,12 @@ module Bddgenx
         end
       end
 
+      ##
+      # Detecta o idioma do arquivo de feature pela linha "# language:".
+      #
+      # @param caminho_arquivo [String] Caminho do arquivo para detecção do idioma.
+      # @return [String] Código do idioma detectado (ex: 'pt'), padrão 'pt'.
+      #
       def self.detecta_idioma_arquivo(caminho_arquivo)
         return 'pt' unless File.exist?(caminho_arquivo)
 
@@ -107,7 +128,7 @@ module Bddgenx
           end
         end
 
-        'pt' # padrão
+        'pt' # idioma padrão caso não encontre
       end
     end
   end

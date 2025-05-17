@@ -11,3 +11,6 @@ gem 'faraday' # Gemini
 gem 'unicode'
 gem 'bigdecimal', '~> 3.1.9'
 gem 'rspec'
+gem 'webmock'
+gem 'unicode'
+gem 'simplecov'

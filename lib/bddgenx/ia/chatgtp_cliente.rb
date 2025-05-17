@@ -1,10 +1,25 @@
 # lib/bddgenx/ia/chatgpt_cliente.rb
+
 module Bddgenx
   module IA
+    ##
+    # Cliente para interação com a API do ChatGPT da OpenAI para gerar
+    # cenários BDD no formato Gherkin, com suporte a fallback para Gemini.
+    #
     class ChatGptCliente
       CHATGPT_API_URL = 'https://api.openai.com/v1/chat/completions'.freeze
       MODEL = 'gpt-4o'
 
+      ##
+      # Gera cenários BDD a partir de uma história fornecida,
+      # solicitando à API do ChatGPT a criação dos cenários em formato Gherkin.
+      # Se a API key não estiver configurada ou houver erro na requisição,
+      # utiliza fallback com o GeminiCliente.
+      #
+      # @param historia [String] Texto com a história para basear os cenários.
+      # @param idioma [String] Código do idioma ('pt' ou 'en'), padrão 'pt'.
+      # @return [String] Cenários gerados em formato Gherkin com palavras-chave no idioma indicado.
+      #
       def self.gerar_cenarios(historia, idioma = 'pt')
         api_key = ENV['OPENAI_API_KEY']
 
@@ -13,6 +28,7 @@ module Bddgenx
           return fallback_com_gemini(historia, idioma)
         end
 
+        # Palavras-chave Gherkin para português e inglês
         keywords_pt = {
           feature: "Funcionalidade",
           scenario: "Cenário",
@@ -37,6 +53,7 @@ module Bddgenx
 
         keywords = idioma == 'en' ? keywords_en : keywords_pt
 
+        # Prompt base enviado ao ChatGPT, instruindo a saída no formato correto
         prompt_base = <<~PROMPT
           Gere cenários BDD no formato Gherkin, usando as palavras-chave de estrutura no idioma \"#{idioma}\":
             Feature: #{keywords[:feature]}
@@ -80,6 +97,7 @@ module Bddgenx
             texto_limpo = Bddgenx::GherkinCleaner.limpar(texto_ia)
             Utils::StepCleaner.remover_steps_duplicados(texto_ia, idioma)
 
+            # Ajusta a linha de idioma no arquivo gerado
             texto_limpo.sub!(/^# language: .*/, "# language: #{idioma}")
             texto_limpo.prepend("# language: #{idioma}\n") unless texto_limpo.start_with?("# language:")
             return texto_limpo
@@ -94,11 +112,25 @@ module Bddgenx
         end
       end
 
+      ##
+      # Método de fallback que chama o GeminiCliente para gerar cenários,
+      # usado quando a API do ChatGPT não está disponível ou ocorre erro.
+      #
+      # @param historia [String] Texto da história para basear os cenários.
+      # @param idioma [String] Código do idioma ('pt' ou 'en').
+      # @return [String] Cenários gerados pelo GeminiCliente.
+      #
       def self.fallback_com_gemini(historia, idioma)
         warn "🔁 Tentando gerar com Gemini como fallback..."
         GeminiCliente.gerar_cenarios(historia, idioma)
       end
 
+      ##
+      # Detecta o idioma de um arquivo de feature pela linha "# language:".
+      #
+      # @param caminho_arquivo [String] Caminho para o arquivo de feature.
+      # @return [String] Código do idioma detectado ('pt' por padrão).
+      #
       def self.detecta_idioma_arquivo(caminho_arquivo)
         return 'pt' unless File.exist?(caminho_arquivo)
 

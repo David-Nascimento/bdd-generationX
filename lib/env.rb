@@ -45,6 +45,7 @@ require_relative  'bddgenx/reports/backup'                    # Mecanismo de bac
 require_relative  'bddgenx/reports/tracer'                    # Rastreabilidade dos processos
 
 require_relative 'bddgenx/configuration'                      # Configuração das variaveis de IA
+require_relative '../bin/setup'                               # Verifica estrutura do projeto, caso nao exista cria a nova.
 
 # Define variável de ambiente global para indicar que o ambiente BDDGENX está em modo desenvolvimento
 ENV['BDDGENX_ENV'] = 'development'

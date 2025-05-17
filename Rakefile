@@ -3,6 +3,11 @@ require_relative 'lib/env'
 require 'rake'
 
 namespace :bddgenx do
+  desc 'Inicializar projeto'
+  task :setup do
+    Bddgenx::Setup.inicializar_projeto
+  end
+
   desc 'Executa a geração BDD usando o modo atual (static, chatgpt, gemini)'
   task :generate do
     puts "⚙️  Modo de geração: #{Bddgenx.configuration.mode}"

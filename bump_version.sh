@@ -1,14 +1,29 @@
 #!/usr/bin/env bash
 set -e
+set -x
 
 # CONFIGURAÇÃO
-VERSION_FILE="VERSION"
+# Se existir arquivo VERSION na raiz, usa aquele.
+# Senão, busca em lib/bddgenx/VERSION.
+if [ -f "VERSION" ]; then
+  VERSION_FILE="VERSION"
+elif [ -f "lib/bddgenx/VERSION" ]; then
+  VERSION_FILE="lib/bddgenx/VERSION"
+else
+  echo "❌ Nenhum arquivo de versão encontrado (VERSION ou lib/bddgenx/VERSION)."
+  exit 1
+fi
+
 GEMSPEC_FILE="bddgenx.gemspec"
 REMOTE="origin"
 BRANCH="main"
 
-# Função para detectar tipo de mudança
+# Atualiza as referências do remote (importante para diffs e logs)
+git fetch "$REMOTE" "$BRANCH"
+
+# Função para detectar tipo de bump
 detectar_tipo_versao() {
+  # Conta quantos arquivos foram alterados desde o último commit no remote
   arquivos_modificados=$(git diff --name-only "$REMOTE/$BRANCH"...HEAD | wc -l)
   mensagens_commit=$(git log "$REMOTE/$BRANCH"..HEAD --pretty=format:"%s")
 
@@ -16,7 +31,7 @@ detectar_tipo_versao() {
     echo "major"
   elif [ "$arquivos_modificados" -ge 10 ]; then
     echo "major"
-  elif echo "$mensagens_commit" | grep -iq "feat"; then
+  elif echo "$mensagens_commit" | grep -iq "^feat"; then
     echo "minor"
   elif [ "$arquivos_modificados" -ge 3 ]; then
     echo "minor"
@@ -25,10 +40,11 @@ detectar_tipo_versao() {
   fi
 }
 
-# 1) Determina a nova versão
+# 1) Define a nova versão
 if [ "$#" -eq 1 ]; then
   NEW_VERSION="$1"
 else
+  # Se não existe, cria com 0.0.0
   [ -f "$VERSION_FILE" ] || echo "0.0.0" > "$VERSION_FILE"
   CURRENT_VERSION=$(cat "$VERSION_FILE")
   IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
@@ -55,21 +71,26 @@ fi
 
 echo "🔖 Bump de versão: ${CURRENT_VERSION:-N/A} → $NEW_VERSION"
 
-# 2) Atualiza o arquivo VERSION
+# 2) Atualiza o arquivo de versão
 echo "$NEW_VERSION" > "$VERSION_FILE"
 
-# 3) Commit, tag e push no Git
+# 3) Commit, tag e push
 git checkout "$BRANCH"
 git pull "$REMOTE" "$BRANCH"
-
 git add "$VERSION_FILE"
 git commit -m "Bump version to v$NEW_VERSION"
 git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
 git push "$REMOTE" "$BRANCH"
 git push "$REMOTE" "v$NEW_VERSION"
 
-# 4) Gera o .gem com a versão nova
+# 4) Gera a gem
 echo "📦 Gerando pacote gem..."
 gem build "$GEMSPEC_FILE"
 
-echo "✅ Pacote gerado: $(basename bddgenx-$NEW_VERSION.gem)"
+GEMFILE="bddgenx-$NEW_VERSION.gem"
+if [ -f "$GEMFILE" ]; then
+  echo "✅ Pacote gerado: $GEMFILE"
+else
+  echo "❌ Falha ao encontrar o arquivo $GEMFILE após build."
+  exit 1
+fi

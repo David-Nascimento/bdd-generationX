@@ -1,9 +1,8 @@
-require_relative "lib/bddgenx/rb"
+require_relative "lib/bddgenx"
 
 Gem::Specification.new do |spec|
   spec.name           = "bddgenx"
   spec.version        = Bddgenx::VERSION
-
   spec.add_dependency  "prawn", ">= 2.0"
   spec.add_dependency  "prawn-table", ">= 0.2.0"
   spec.add_dependency  "prawn-svg", ">= 0.2.2"

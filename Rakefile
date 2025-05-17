@@ -1,49 +1,36 @@
-# Rakefile
-require_relative 'lib/env'
 require 'rake'
+require 'bddgenx'
 
 namespace :bddgenx do
-  desc 'Inicializar projeto'
-  task :setup do
-    Bddgenx::Setup.inicializar_projeto
-  end
-
-  desc 'Executa a geração BDD usando o modo atual (static, chatgpt, gemini)'
+  desc 'Executa geração interativa: escolha entre static, chatgpt, gemini ou deepseek'
   task :generate do
-    puts "⚙️  Modo de geração: #{Bddgenx.configuration.mode}"
+    puts "=== Qual modo deseja usar para gerar os cenários? ==="
+    puts "1. static (sem IA)"
+    puts "2. chatgpt (via OpenAI)"
+    puts "3. gemini (via Google)"
+    print "Digite o número (1-3): "
 
-    # Evita que ARGV contenha o nome da task (como "bddgenx:static")
-    ARGV.clear
+    escolha = STDIN.gets.chomp.to_i
 
-    Bddgenx::Runner.execute
-  end
+    modo = case escolha
+           when 1 then :static
+           when 2 then :chatgpt
+           when 3 then :gemini
+           else
+             puts "❌ Opção inválida. Saindo."; exit 1
+           end
 
-  desc 'Gera features no modo estático (sem IA)'
-  task :static do
     Bddgenx.configure do |config|
-      config.mode = :static
-    end
-    ENV['BDDGENX_MODE'] = 'static'
-    Rake::Task['bddgenx:generate'].invoke
-  end
-
-  desc 'Gera features usando ChatGPT'
-  task :chatgpt do
-    Bddgenx.configure do |config|
-      config.mode = :chatgpt
+      config.mode = modo
       config.openai_api_key_env = 'OPENAI_API_KEY'
-    end
-    ENV['BDDGENX_MODE'] = 'chatgpt'
-    Rake::Task['bddgenx:generate'].invoke
-  end
-
-  desc 'Gera features usando Gemini'
-  task :gemini do
-    Bddgenx.configure do |config|
-      config.mode = :gemini
       config.gemini_api_key_env = 'GEMINI_API_KEY'
     end
-    ENV['BDDGENX_MODE'] = 'gemini'
-    Rake::Task['bddgenx:generate'].invoke
+
+    # ⚠️ Limpa o ARGV antes de executar para evitar que [static] seja interpretado como nome de arquivo
+    ARGV.clear
+
+    ENV['BDDGENX_MODE'] = modo.to_s
+    puts "\n⚙️  Modo selecionado: #{modo}\n\n"
+    Bddgenx::Runner.execute
   end
 end

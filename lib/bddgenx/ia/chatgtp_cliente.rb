@@ -55,21 +55,31 @@ module Bddgenx
 
         # Prompt base enviado ao ChatGPT, instruindo a saída no formato correto
         prompt_base = <<~PROMPT
-          Gere cenários BDD no formato Gherkin, usando as palavras-chave de estrutura no idioma \"#{idioma}\":
-            Feature: #{keywords[:feature]}
-            Scenario: #{keywords[:scenario]}
-            Scenario Outline: #{keywords[:scenario_outline]}
-            Examples: #{keywords[:examples]}
-            Given: #{keywords[:given]}
-            When: #{keywords[:when]}
-            Then: #{keywords[:then]}
-            And: #{keywords[:and]}
-
-          Atenção: Os textos e descrições dos cenários e passos devem ser escritos em português, mesmo que as palavras-chave estejam em inglês.
-
-          História:
-          #{historia}
-        PROMPT
+                        Gere cenários BDD no formato Gherkin, utilizando as palavras-chave estruturais no idioma "#{idioma}":
+                          Feature: #{keywords[:feature]}
+                          Scenario: #{keywords[:scenario]}
+                          Scenario Outline: #{keywords[:scenario_outline]}
+                          Examples: #{keywords[:examples]}
+                          Given: #{keywords[:given]}
+                          When: #{keywords[:when]}
+                          Then: #{keywords[:then]}
+                          And: #{keywords[:and]}
+                      
+                        Instruções:
+                        - Todos os textos dos passos devem ser escritos em **português**.
+                        - Use as palavras-chave Gherkin no idioma especificado ("#{idioma}").
+                        - Gere **vários cenários**, incluindo positivos e negativos.
+                        - Use `Scenario Outline` e `Examples` sempre que houver valores variáveis.
+                        - Mantenha os parâmetros como `<email>`, `<senha>` e outros entre colchetes angulares, exatamente como aparecem.
+                        - Se a história fornecer contexto (ex: `[CONTEXT]` ou "Dado que..."), utilize-o como base para os cenários.
+                        - Se não houver contexto explícito, **crie um coerente** baseado na história.
+                        - A primeira linha do resultado deve conter obrigatoriamente `# language: #{idioma}`.
+                        - Evite passos vagos ou genéricos. Use ações claras e específicas.
+                        - Gere apenas o conteúdo da feature, sem explicações adicionais.
+                      
+                        História fornecida:
+                        #{historia}
+                      PROMPT
 
         uri = URI(CHATGPT_API_URL)
         request_body = {
@@ -107,7 +117,10 @@ module Bddgenx
             return fallback_com_gemini(historia, idioma)
           end
         else
-          warn "❌ Erro ao chamar ChatGPT: #{response.code} - #{response.body}"
+          if response.code.to_i == 429
+            warn "❌ Limite de uso da API OpenAI excedido."
+            warn "🔗 Verifique sua conta: https://platform.openai.com/account/usage"
+          end
           return fallback_com_gemini(historia, idioma)
         end
       end

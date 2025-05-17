@@ -149,34 +149,42 @@ Bddgenx::Runner.execute
 
 ## 📦 Geração manual via Rake
 ```Ruby
-require_relative 'lib/env' # ajuste conforme seu projeto
 require 'rake'
+require 'bddgenx'
 
 namespace :bddgenx do
-  desc 'Gera arquivos BDD com IA ou modo estático. Use: rake bddgenx:generate[modo]'
-  task :generate, [:modo] do |_, args|
-    modo = args[:modo]&.downcase&.to_sym || :static
+  desc 'Executa geração interativa: escolha entre static, chatgpt, gemini ou deepseek'
+  task :generate do
+    puts "=== Qual modo deseja usar para gerar os cenários? ==="
+    puts "1. static (sem IA)"
+    puts "2. chatgpt (via OpenAI)"
+    puts "3. gemini (via Google)"
+    print "Digite o número (1-3): "
 
-    unless %i[static chatgpt gemini deepseek].include?(modo)
-      puts "❌ Modo inválido: #{modo}"
-      puts "Use: rake bddgenx:generate[static|chatgpt|gemini|deepseek]"
-      exit 1
-    end
+    escolha = STDIN.gets.chomp.to_i
+
+    modo = case escolha
+           when 1 then :static
+           when 2 then :chatgpt
+           when 3 then :gemini
+           else
+             puts "❌ Opção inválida. Saindo."; exit 1
+           end
 
     Bddgenx.configure do |config|
       config.mode = modo
       config.openai_api_key_env = 'OPENAI_API_KEY'
       config.gemini_api_key_env = 'GEMINI_API_KEY'
-      config.deepseek_api_key_env = 'DEEPSEEK_API_KEY'
     end
 
-    ENV['BDDGENX_MODE'] = modo.to_s
+    # ⚠️ Limpa o ARGV antes de executar para evitar que [static] seja interpretado como nome de arquivo
+    ARGV.clear
 
-    puts "⚙️  Gerando com modo: #{modo}"
+    ENV['BDDGENX_MODE'] = modo.to_s
+    puts "\n⚙️  Modo selecionado: #{modo}\n\n"
     Bddgenx::Runner.execute
   end
 end
-
 ```
 
 ## 📝 Formato do Arquivo de Entrada (`.txt`)
@@ -184,17 +192,37 @@ end
 ```txt
 # language: pt
 Como um usuário do sistema
-Quero fazer login
-Para acessar minha conta
+Quero fazer login corretamente
+Para acessar minha conta com segurança
+
+[CONTEXT]
+Dado que estou na tela de login
 
 [SUCCESS]
-Quando preencho <email> e <senha>
+Quando preencho email e senha válidos
 Então vejo a tela inicial
 
+[SUCCESS]
+Quando tento logar com "<email>" e "<senha>"
+Então recebo "<mensagem>"
+
 [EXAMPLES]
-| email            | senha   |
-| user@site.com    | 123456  |
-| errado@site.com  | senha   |
+| email            | senha   | mensagem                  |
+| user@site.com    | 123456  | login realizado           |
+| errado@site.com  | senha   | credenciais inválidas     |
+|                  | senha   | email é obrigatório       |
+| user@site.com    |         | senha é obrigatória       |
+
+[SUCCESS]
+Quando deixo o campo "<campo>" vazio
+Então recebo a mensagem "<mensagem>"
+
+[EXAMPLES]
+| campo  | mensagem                  |
+|        | login realizado           |
+|        | credenciais inválidas     |
+| email  | email é obrigatório       |
+| senha  | senha é obrigatória       |
 ```
 
 ---

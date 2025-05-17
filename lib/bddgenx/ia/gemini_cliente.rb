@@ -46,21 +46,33 @@ module Bddgenx
 
         # Prompt base que instrui a IA a gerar cenários Gherkin no idioma indicado
         prompt_base = <<~PROMPT
-          Gere cenários BDD no formato Gherkin, usando as palavras-chave de estrutura no idioma "#{idioma}":
-            Feature: #{keywords[:feature]}
-            Scenario: #{keywords[:scenario]}
-            Scenario Outline: #{keywords[:scenario_outline]}
-            Examples: #{keywords[:examples]}
-            Given: #{keywords[:given]}
-            When: #{keywords[:when]}
-            Then: #{keywords[:then]}
-            And: #{keywords[:and]}
+                        Gere cenários BDD no formato Gherkin, utilizando as palavras-chave estruturais no idioma "#{idioma}":
+                          Feature: #{keywords[:feature]}
+                          Scenario: #{keywords[:scenario]}
+                          Scenario Outline: #{keywords[:scenario_outline]}
+                          Examples: #{keywords[:examples]}
+                          Given: #{keywords[:given]}
+                          When: #{keywords[:when]}
+                          Then: #{keywords[:then]}
+                          And: #{keywords[:and]}
+                      
+                        Instruções:
+                        - Todos os textos dos passos devem ser escritos em **português**.
+                        - Use as palavras-chave Gherkin no idioma especificado ("#{idioma}").
+                        - Gere **vários cenários**, incluindo positivos e negativos.
+                        - Use `Scenario Outline` e `Examples` sempre que houver valores variáveis.
+                        - Mantenha os parâmetros como `<email>`, `<senha>` e outros entre colchetes angulares, exatamente como aparecem.
+                        - Se a história fornecer contexto (ex: `[CONTEXT]` ou "Dado que..."), utilize-o como base para os cenários.
+                        - Se não houver contexto explícito, **crie um coerente** baseado na história.
+                        - A primeira linha do resultado deve conter obrigatoriamente `# language: #{idioma}`.
+                        - Evite passos vagos ou genéricos. Use ações claras e específicas.
+                        - Gere apenas o conteúdo da feature, sem explicações adicionais.
+                      
+                        História fornecida:
+                        #{historia}
+                      PROMPT
 
-          Atenção: Os textos e descrições dos cenários e passos devem ser escritos em português, mesmo que as palavras-chave estejam em inglês.
 
-          História:
-          #{historia}
-        PROMPT
 
         unless api_key
           warn "❌ API Key do Gemini não encontrada no .env (GEMINI_API_KEY)"
@@ -100,6 +112,11 @@ module Bddgenx
             # Ajuste da diretiva de idioma na saída gerada
             texto_limpo.sub!(/^# language: .*/, "# language: #{idioma}")
             texto_limpo.prepend("# language: #{idioma}\n") unless texto_limpo.start_with?("# language:")
+
+            # Garante diretiva de idioma
+            feature_text = Bddgenx::GherkinCleaner.limpar(texto_ia)
+            feature_text.sub!(/^# language: .*/, "") # remove qualquer # language: existente
+            feature_text.prepend("# language: #{idioma}\n") # insere a correta
 
             return texto_limpo
           else

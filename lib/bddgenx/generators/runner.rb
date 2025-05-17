@@ -101,15 +101,18 @@ module Bddgenx
         end
 
         # Geração de feature
-        if modo == 'gemini' || modo == 'chatgpt'
+        if %w[gemini chatgpt].include?(modo)
           puts "🤖 Gerando cenários com IA (#{modo.capitalize})..."
           idioma = IA::GeminiCliente.detecta_idioma_arquivo(arquivo)
-          feature_text =
+
+          feature_text = Bddgenx::Support::Loader.run("⏳ Aguardando resposta da IA...") do
             if modo == 'gemini'
               IA::GeminiCliente.gerar_cenarios(historia, idioma)
             else
               IA::ChatGptCliente.gerar_cenarios(historia, idioma)
             end
+          end
+
           if feature_text
             feature_path = Generator.path_para_feature(arquivo)
             feature_content = Bddgenx::GherkinCleaner.limpar(feature_text)
@@ -119,7 +122,9 @@ module Bddgenx
             next
           end
         else
-          feature_path, feature_content = Generator.gerar_feature(historia)
+          feature_path, feature_content = Bddgenx::Support::Loader.run("⛏️  Gerando feature estática...", :dots) do
+            Generator.gerar_feature(historia)
+          end
         end
 
         Backup.salvar_versao_antiga(feature_path)

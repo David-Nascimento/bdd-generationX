@@ -46,6 +46,7 @@ require_relative  'bddgenx/reports/tracer'                    # Rastreabilidade 
 
 require_relative 'bddgenx/configuration'                      # Configuração das variaveis de IA
 require_relative 'bddgenx/setup'                               # Verifica estrutura do projeto, caso nao exista cria a nova.
+require_relative 'bddgenx/support/loader'
 
 # Define variável de ambiente global para indicar que o ambiente BDDGENX está em modo desenvolvimento
 ENV['BDDGENX_ENV'] = 'development'

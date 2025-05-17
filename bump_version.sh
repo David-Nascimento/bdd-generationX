@@ -29,11 +29,11 @@ detectar_tipo_versao() {
 
   if echo "$mensagens_commit" | grep -iq "BREAKING CHANGE"; then
     echo "major"
-  elif [ "$arquivos_modificados" -ge 10 ]; then
+  elif [ "$arquivos_modificados" -ge 35 ]; then
     echo "major"
   elif echo "$mensagens_commit" | grep -iq "^feat"; then
     echo "minor"
-  elif [ "$arquivos_modificados" -ge 5 ]; then
+  elif [ "$arquivos_modificados" -ge 10 ]; then
     echo "minor"
   else
     echo "patch"

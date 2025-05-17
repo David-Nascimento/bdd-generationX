@@ -39,8 +39,14 @@ Dotenv.load  # Carrega variáveis como BDDGENX_LANG e APIs
 locales_path = File.expand_path('bddgenx/locales/*.yml', __dir__)
 I18n.load_path += Dir[locales_path]
 
-# Define o idioma ativo (default: pt, sobrescrevível via .env)
-I18n.locale = ENV['BDDGENX_LANG']&.to_sym || :pt
+# Define o idioma ativo somente se estiver presente e válido
+idioma_env = ENV['BDDGENX_LANG']
+if idioma_env && !idioma_env.strip.empty?
+  I18n.locale = idioma_env.strip.to_sym
+else
+  I18n.locale = :pt
+end
+
 
 # --------------------------------------
 # 🔧 Bundler (para projetos com Gemfile)

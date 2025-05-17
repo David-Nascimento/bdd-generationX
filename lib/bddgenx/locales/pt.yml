@@ -1,0 +1,27 @@
+pt:
+  messages:
+    start_ia: "🤖 Gerando cenários com IA (%{modo})..."
+    start_static: "⛏️  Gerando feature estática..."
+    ia_waiting: "⏳ Aguardando resposta da IA..."
+    feature_fail: "❌ Falha ao gerar com IA: %{arquivo}"
+    no_files: "❌ Nenhum arquivo de história para processar."
+    not_found: "⚠️  Arquivo não encontrado: %{arquivo}"
+    processing_done: "✅ Processamento concluído"
+    total_histories: "Total de histórias"
+    features_generated: "Features geradas"
+    steps_generated: "Steps gerados"
+    feature_created: "✅ Arquivo .feature gerado: %{caminho}"
+  gherkin:
+    feature: "Funcionalidade"
+    context: "Contexto"
+    scenario: "Cenário"
+    scenario_outline: "Esquema do Cenário"
+    examples: "Exemplos"
+    rule: "Regra"
+  steps:
+    header: "Definições de passos geradas automaticamente para %{file}"
+    pending: "Implementar passo: %{text}"
+    generated: "✅ Steps gerados: %{path}"
+  errors:
+    invalid_path: "Caminho esperado como String, recebeu %{path}"
+

@@ -1,0 +1,28 @@
+en:
+  messages:
+    start_ia: "🤖 Generating scenarios with AI (%{modo})..."
+    start_static: "⛏️  Generating static feature..."
+    ia_waiting: "⏳ Waiting for AI response..."
+    feature_fail: "❌ Failed to generate via AI: %{arquivo}"
+    no_files: "❌ No story file found to process."
+    not_found: "⚠️  File not found: %{arquivo}"
+    processing_done: "✅ Processing complete"
+    total_histories: "Total stories"
+    features_generated: "Generated features"
+    steps_generated: "Generated steps"
+    feature_created: "✅ .feature file generated: %{caminho}"
+  gherkin:
+    feature: "Feature"
+    context: "Background"
+    scenario: "Scenario"
+    scenario_outline: "Scenario Outline"
+    examples: "Examples"
+    rule: "Rule"
+  steps:
+    header: "Step definitions automatically generated for %{file}"
+    pending: "Implement step: %{text}"
+    generated: "✅ Steps generated: %{path}"
+  errors:
+    invalid_path: "Expected path as String, got %{path}"
+  messages2:
+    processing_done: "✅ Processing complete"

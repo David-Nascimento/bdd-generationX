@@ -33,7 +33,7 @@ detectar_tipo_versao() {
     echo "major"
   elif echo "$mensagens_commit" | grep -iq "^feat"; then
     echo "minor"
-  elif [ "$arquivos_modificados" -ge 3 ]; then
+  elif [ "$arquivos_modificados" -ge 5 ]; then
     echo "minor"
   else
     echo "patch"

@@ -20,26 +20,27 @@ bdd-generation/
 │   ├── historia_en.txt
 │   └── ...
 ├── lib/
-│   └── bddgenx/
-│       ├── ia/                  # Módulo de IA
-│       │   ├── chatgpt_cliente.rb
-│       │   └── gemini_cliente.rb
-│       ├── generators/          # Responsável por geração
-│       │   ├── generator.rb
-│       │   ├── steps_generator.rb
-│       │   └── runner.rb
-│       ├── reports/            # Exportadores, backups e rastreabilidade
-│       │   ├── pdf_exporter.rb
-│       │   ├── backup.rb
-│       │   └── tracer.rb
-│       ├── support/            # Utilitários auxiliares
-│       │   ├── gherkin_cleaner.rb
-│       │   ├── remover_steps_duplicados.rb
-│       │   ├── validator.rb
-│       │   └── font_loader.rb
-│       ├── parser.rb           # Parse do .txt
-│       ├── version.rb          # Versão da gem
-│       └── bddgenx.rb          # Arquivo principal (require central)
+│   ├── bddgenx/
+│   │   ├── generators/
+│   │   │   ├── generator.rb       # Geração de arquivos .feature
+│   │   │   ├── steps_generator.rb # Geração de arquivos de step
+│   │   │   └── runner.rb          # Execução geral conforme modo (static/chatgpt/gemini)
+│   │   ├── ia/
+│   │   │   ├── chatgpt_cliente.rb # Cliente OpenAI
+│   │   │   └── gemini_cliente.rb  # Cliente Gemini
+│   │   ├── reports/
+│   │   │   ├── backup.rb
+│   │   │   ├── pdf_exporter.rb
+│   │   │   └── tracer.rb
+│   │   ├── support/
+│   │   │   ├── font_loader.rb
+│   │   │   ├── gherkin_cleaner.rb
+│   │   │   ├── remover_steps_duplicados.rb
+│   │   │   └── validator.rb
+│   │   ├── configuration.rb       # Configuração global da gem (modo, vars de ambiente)
+│   │   └── version.rb             # Carrega versão a partir do arquivo VERSION
+│   ├── bddgenx.rb                 # Ponto de entrada da gem (requer env)
+│   └── parser.rb                  # Parser de arquivos de entrada
 ├── reports/                     # Saídas: PDF, backup, rastreabilidade
 │   ├── pdf/
 │   ├── backup/
@@ -80,8 +81,16 @@ gem install bddgenx
 ```ruby
 require 'bddgenx'
 
-# Gera todas as features e steps a partir dos .txt em input/
-Bddgenx::Runner.execute
+require 'bddgenx'
+
+# Configuração
+Bddgenx.configure do |config|
+  config.mode = :chatgpt  # :static, :chatgpt ou :gemini
+  config.openai_api_key_env = 'OPENAI_API_KEY'
+end
+
+# Executar geração
+Bddgenx::Runner.execute('Minha história de exemplo', idioma: 'pt')
 ```
 
 ## Tarefa Rake (opcional)
@@ -89,13 +98,44 @@ Bddgenx::Runner.execute
 Em um projeto Rails ou Ruby com Rake, adicione ao `Rakefile`:
 
 ```ruby
-require 'bddgenx'
+require_relative 'lib/env'
 require 'rake'
+require 'bddgenx'
 
 namespace :bddgenx do
-  desc 'Gera .feature e steps a partir de histórias em input/'
-  task :gerar do
+  desc 'Executa a geração BDD usando o modo atual (static, chatgpt, gemini)'
+  task :generate do
+    puts "⚙️  Modo de geração: #{Bddgenx.configuration.mode}"
     Bddgenx::Runner.execute
+  end
+
+  desc 'Gera features no modo estático (sem IA)'
+  task :static do
+    Bddgenx.configure do |config|
+      config.mode = :static
+    end
+    ENV['BDDGENX_MODE'] = 'static'
+    Rake::Task['bddgenx:generate'].invoke
+  end
+
+  desc 'Gera features usando ChatGPT'
+  task :chatgpt do
+    Bddgenx.configure do |config|
+      config.mode = :chatgpt
+      config.openai_api_key_env = 'OPENAI_API_KEY'
+    end
+    ENV['BDDGENX_MODE'] = 'chatgpt'
+    Rake::Task['bddgenx:generate'].invoke
+  end
+
+  desc 'Gera features usando Gemini'
+  task :gemini do
+    Bddgenx.configure do |config|
+      config.mode = :gemini
+      config.gemini_api_key_env = 'GEMINI_API_KEY'
+    end
+    ENV['BDDGENX_MODE'] = 'gemini'
+    Rake::Task['bddgenx:generate'].invoke
   end
 end
 ```

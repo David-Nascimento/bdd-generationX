@@ -35,12 +35,14 @@ require_relative  'bddgenx/generators/runner'                 # Classe responsá
 
 # Parser do arquivo de entrada e versão da gem
 require_relative  'parser'                                    # Parser para interpretar arquivos de entrada
-require_relative  'version'                                   # Informação da versão da gem
+require_relative 'bddgenx/version'                                   # Informação da versão da gem
 
 # Relatórios e exportação
 require_relative  'bddgenx/reports/pdf_exporter'              # Exporta relatórios em PDF usando Prawn
 require_relative  'bddgenx/reports/backup'                    # Mecanismo de backup dos arquivos gerados
 require_relative  'bddgenx/reports/tracer'                    # Rastreabilidade dos processos
+
+require_relative 'bddgenx/configuration'                      # Configuração das variaveis de IA
 
 # Define variável de ambiente global para indicar que o ambiente BDDGENX está em modo desenvolvimento
 ENV['BDDGENX_ENV'] = 'development'

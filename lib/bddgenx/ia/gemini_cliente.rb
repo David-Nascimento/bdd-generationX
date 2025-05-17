@@ -18,7 +18,7 @@ module Bddgenx
       # @return [String, nil] Cenários no formato Gherkin, ou nil em caso de erro.
       #
       def self.gerar_cenarios(historia, idioma = 'pt')
-        api_key = ENV['GEMINI_API_KEY']
+        api_key = Bddgenx::Configuration.gemini_api_key
 
         keywords_pt = {
           feature: "Funcionalidade",

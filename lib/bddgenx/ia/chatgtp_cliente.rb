@@ -21,7 +21,7 @@ module Bddgenx
       # @return [String] Cenários gerados em formato Gherkin com palavras-chave no idioma indicado.
       #
       def self.gerar_cenarios(historia, idioma = 'pt')
-        api_key = ENV['OPENAI_API_KEY']
+        api_key = Bddgenx::Configuration.openai_api_key
 
         unless api_key
           warn "❌ API Key do ChatGPT não encontrada no .env (OPENAI_API_KEY)"

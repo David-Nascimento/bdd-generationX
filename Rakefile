@@ -1,5 +1,5 @@
-require 'rake'
 require 'bddgenx'
+require 'rake'
 
 namespace :bddgenx do
   desc 'Executa geração interativa: escolha entre static, chatgpt, gemini ou deepseek'

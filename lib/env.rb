@@ -1,52 +1,103 @@
 # lib/bddgenx/env.rb
+# encoding: utf-8
+#
+# Responsável por carregar todas as dependências da gem bddgenx.
+# Inclui bibliotecas padrão, gems externas e arquivos internos
+# essenciais para o funcionamento da geração BDD, com suporte a I18n,
+# IA (ChatGPT, Gemini), geração de PDF, validações e estrutura de projeto.
 
-# Carregamento de bibliotecas padrão e gems externas usadas no projeto
+# --------------------------------------
+# 📦 Gems padrão da linguagem Ruby
+# --------------------------------------
 
-require 'json'           # Para manipulação de dados JSON
-require 'net/http'       # Para fazer requisições HTTP
-require 'uri'            # Para manipulação de URLs
-require 'fileutils'      # Para manipulação de arquivos e diretórios
-require 'prawn'          # Biblioteca para geração de PDFs
-require 'prawn/table'    # Suporte a tabelas no Prawn PDF
-require 'prawn-svg'      # Para incorporar SVG em PDFs com Prawn
-require 'open3'          # Para executar comandos externos com captura de saída
-require 'faraday'        # Cliente HTTP para Gemini API
-require 'dotenv'         # Para carregar variáveis de ambiente de arquivos .env
-require 'unicode'        # Para manipulação avançada de strings Unicode (ex: remoção de acentos)
-require 'bigdecimal'     # Para operações matemáticas precisas com decimais
+require 'json'           # Manipulação de dados JSON
+require 'net/http'       # Requisições HTTP nativas
+require 'uri'            # Manipulação de URLs
+require 'fileutils'      # Operações com arquivos e diretórios
+require 'open3'          # Execução de comandos externos com captura de saída
+require 'bigdecimal'     # Cálculos matemáticos de alta precisão
+require 'i18n'           # Internacionalização (traduções dinâmicas)
 
-Dotenv.load
+# --------------------------------------
+# 📚 Gems externas
+# --------------------------------------
 
-# Configura o caminho base do projeto e carrega as gems definidas no Gemfile (se existir)
+require 'prawn'          # Geração de documentos PDF
+require 'prawn/table'    # Suporte a tabelas no Prawn
+require 'prawn-svg'      # Suporte a SVG no PDF
+require 'faraday'        # Cliente HTTP para integração com APIs (ex: Gemini)
+require 'dotenv'         # Carrega variáveis de ambiente do arquivo `.env`
+require 'unicode'        # Manipulação e normalização de caracteres Unicode
+
+# --------------------------------------
+# 🌍 Configuração de idioma (I18n)
+# --------------------------------------
+
+Dotenv.load  # Carrega variáveis como BDDGENX_LANG e APIs
+
+# Define o caminho de arquivos de tradução YAML
+locales_path = File.expand_path('bddgenx/locales/*.yml', __dir__)
+I18n.load_path += Dir[locales_path]
+
+# Define o idioma ativo (default: pt, sobrescrevível via .env)
+I18n.locale = ENV['BDDGENX_LANG']&.to_sym || :pt
+
+# --------------------------------------
+# 🔧 Bundler (para projetos com Gemfile)
+# --------------------------------------
+
+# Carrega as dependências listadas no Gemfile (se houver)
 require 'bundler/setup' if File.exist?(File.expand_path('../../Gemfile', __FILE__))
 
-# Carregamento dos módulos utilitários (helpers)
-require_relative  'bddgenx/support/gherkin_cleaner'          # Limpeza e normalização de textos Gherkin
-require_relative  'bddgenx/support/remover_steps_duplicados' # Remoção de steps duplicados em features
-require_relative  'bddgenx/support/validator'                # Validação de dados e entrada
-require_relative  'bddgenx/support/font_loader'              # Carregamento de fontes para geração PDF
+# --------------------------------------
+# 🧩 Módulos utilitários da gem
+# --------------------------------------
 
-# Carregamento dos clientes para Integração com Inteligência Artificial
-require_relative  'bddgenx/ia/gemini_cliente'                # Cliente para API Gemini (Google)
-require_relative  'bddgenx/ia/chatgtp_cliente'               # Cliente para API ChatGPT (OpenAI)
+require_relative 'bddgenx/support/gherkin_cleaner'           # Sanitização de Gherkin gerado
+require_relative 'bddgenx/support/remover_steps_duplicados'  # Remove passos duplicados
+require_relative 'bddgenx/support/validator'                 # Valida estrutura de entrada
+require_relative 'bddgenx/support/font_loader'               # Carrega fontes do PDF
 
-# Carregamento dos geradores de BDD (features, steps e runner)
-require_relative  'bddgenx/generators/generator'             # Gerador principal de arquivos .feature
-require_relative  'bddgenx/generators/steps_generator'       # Gerador de arquivos steps.rb
-require_relative  'bddgenx/generators/runner'                 # Classe responsável pela execução do processo de geração
+# --------------------------------------
+# 🤖 Clientes de IA (ChatGPT, Gemini)
+# --------------------------------------
 
-# Parser do arquivo de entrada e versão da gem
-require_relative  'parser'                                    # Parser para interpretar arquivos de entrada
-require_relative 'bddgenx/version'                                   # Informação da versão da gem
+require_relative 'bddgenx/ia/gemini_cliente'   # Integração com Google Gemini
+require_relative 'bddgenx/ia/chatgtp_cliente'  # Integração com OpenAI (ChatGPT)
 
-# Relatórios e exportação
-require_relative  'bddgenx/reports/pdf_exporter'              # Exporta relatórios em PDF usando Prawn
-require_relative  'bddgenx/reports/backup'                    # Mecanismo de backup dos arquivos gerados
-require_relative  'bddgenx/reports/tracer'                    # Rastreabilidade dos processos
+# --------------------------------------
+# 🛠 Geradores (features, steps e execução)
+# --------------------------------------
 
-require_relative 'bddgenx/configuration'                      # Configuração das variaveis de IA
-require_relative 'bddgenx/setup'                               # Verifica estrutura do projeto, caso nao exista cria a nova.
-require_relative 'bddgenx/support/loader'
+require_relative 'bddgenx/generators/generator'        # Geração do conteúdo `.feature`
+require_relative 'bddgenx/generators/steps_generator'  # Geração de arquivos `*_steps.rb`
+require_relative 'bddgenx/generators/runner'           # Orquestrador da execução CLI
 
-# Define variável de ambiente global para indicar que o ambiente BDDGENX está em modo desenvolvimento
+# --------------------------------------
+# 📄 Parser e metadados
+# --------------------------------------
+
+require_relative 'parser'               # Interpreta arquivos `.txt` de entrada
+require_relative 'bddgenx/version'      # Lê versão do arquivo `VERSION`
+
+# --------------------------------------
+# 📤 Relatórios e exportação
+# --------------------------------------
+
+require_relative 'bddgenx/reports/pdf_exporter'  # Exporta features para PDF
+require_relative 'bddgenx/reports/backup'        # Gera backups de arquivos
+require_relative 'bddgenx/reports/tracer'        # Rastreabilidade de geração
+
+# --------------------------------------
+# ⚙️ Configuração da gem e loaders auxiliares
+# --------------------------------------
+
+require_relative 'bddgenx/configuration'  # Variáveis de configuração (modo, APIs, etc.)
+require_relative 'bddgenx/setup'          # Inicializa estrutura do projeto (input/, features/, etc.)
+require_relative 'bddgenx/support/loader' # Exibe loaders/spinners no terminal
+
+# --------------------------------------
+# 🔁 Define modo de execução (ambiente de dev por padrão)
+# --------------------------------------
+
 ENV['BDDGENX_ENV'] = 'development'

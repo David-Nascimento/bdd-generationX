@@ -1,6 +1,3 @@
-#!/usr/bin/env ruby
-# Shebang para permitir execução direta do script no Linux/macOS, usando o interpretador Ruby do PATH
-
 require_relative 'env'
 # Carrega o arquivo 'env.rb' relativo a este script. Geralmente contém configurações e carregamento da gem Bddgenx.
 

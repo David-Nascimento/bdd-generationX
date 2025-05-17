@@ -2,28 +2,35 @@
 # encoding: utf-8
 #
 # Este arquivo define a classe Runner (CLI) da gem bddgenx,
-# responsável por orquestrar o fluxo de leitura de histórias,
-# validação, geração de features, steps, backups e exportação de PDFs.
+# responsável por orquestrar todo o fluxo de geração BDD:
+# leitura e validação de histórias, geração de features, steps,
+# exportação de PDFs e controle de modo (static / IA).
+
 require_relative '../../bddgenx'
 
 module Bddgenx
-  # Ponto de entrada da gem: coordena todo o processo de geração BDD.
+  # Classe principal de execução da gem.
+  # Atua como ponto de entrada (CLI) para processar arquivos de entrada
+  # e gerar todos os artefatos BDD relacionados.
   class Runner
-    # Seleciona arquivos de entrada para processamento.
-    # Se houver argumentos em ARGV, usa-os como nomes de arquivos .txt;
-    # caso contrário, exibe prompt interativo para escolha.
+
+    ##
+    # Retorna a lista de arquivos de entrada.
+    # Se houver argumentos em ARGV, utiliza-os como nomes de arquivos `.txt`.
+    # Caso contrário, chama prompt interativo.
     #
-    # @param input_dir [String] Diretório onde estão os arquivos .txt de histórias
-    # @return [Array<String>] Lista de caminhos para os arquivos a serem processados
+    # @param input_dir [String] Caminho do diretório de entrada
+    # @return [Array<String>] Lista de arquivos `.txt` a processar
     def self.choose_files(input_dir)
       ARGV.any? ? selecionar_arquivos_txt(input_dir) : choose_input(input_dir)
     end
 
-    # Mapeia ARGV para paths de arquivos .txt em input_dir.
-    # Adiciona extensão '.txt' se necessário e filtra arquivos inexistentes.
+    ##
+    # Processa argumentos ARGV e converte em caminhos válidos de arquivos `.txt`.
+    # Adiciona extensão `.txt` se ausente e remove arquivos inexistentes.
     #
-    # @param input_dir [String] Diretório de entrada
-    # @return [Array<String>] Caminhos válidos para processamento
+    # @param input_dir [String] Diretório onde estão os arquivos
+    # @return [Array<String>] Caminhos válidos para arquivos de entrada
     def self.selecionar_arquivos_txt(input_dir)
       ARGV.map do |arg|
         nome = arg.end_with?('.txt') ? arg : "#{arg}.txt"
@@ -36,12 +43,12 @@ module Bddgenx
       end.compact
     end
 
-    # Exibe prompt interativo para o usuário escolher qual arquivo processar
-    # entre todos os .txt disponíveis em input_dir.
+    ##
+    # Interface interativa para o usuário selecionar arquivos `.txt` a processar.
+    # Exibe uma lista dos arquivos disponíveis e solicita um número ao usuário.
     #
     # @param input_dir [String] Diretório de entrada
-    # @exit [1] Se nenhum arquivo for encontrado ou escolha inválida
-    # @return [Array<String>] Um único arquivo escolhido ou todos se ENTER
+    # @return [Array<String>] Lista com o arquivo escolhido ou todos
     def self.choose_input(input_dir)
       files = Dir.glob(File.join(input_dir, '*.txt'))
       if files.empty?
@@ -61,29 +68,29 @@ module Bddgenx
       [files[idx]]
     end
 
-    # Executa todo o fluxo de geração BDD.
-    # - Cria pasta 'input' se não existir
-    # - Seleciona arquivos de histórias
-    # - Para cada arquivo:
-    #   - Lê e valida a história
-    #   - Gera arquivo .feature e salva backup da versão anterior
-    #   - Gera definitions de steps
-    #   - Exporta PDFs novos via PDFExporter
-    # - Exibe resumo final com estatísticas
+    ##
+    # Executa o fluxo completo de geração BDD:
+    # - Define o modo (static / IA)
+    # - Coleta arquivos de entrada
+    # - Valida as histórias
+    # - Gera arquivos `.feature` e `steps`
+    # - Exporta PDFs e faz backup de versões antigas
+    #
+    # O modo de execução é lido da variável de ambiente `BDDGENX_MODE`.
     #
     # @return [void]
     def self.execute
       modo = ENV['BDDGENX_MODE'] || 'static'
-
       input_dir = 'input'
       Dir.mkdir(input_dir) unless Dir.exist?(input_dir)
 
       arquivos = choose_files(input_dir)
       if arquivos.empty?
-        warn "❌ Nenhum arquivo de história para processar."; exit 1
+        warn I18n.t('messages.no_files')
+        exit 1
       end
 
-      # Inicializa contadores
+      # Contadores de geração
       total = features = steps = ignored = 0
       skipped_steps = []
       generated_pdfs = []
@@ -91,25 +98,28 @@ module Bddgenx
 
       arquivos.each do |arquivo|
         total += 1
-        puts "\n🔍 Processando: #{arquivo}"
+        puts "\n🔍 #{I18n.t('messages.processing')}: #{arquivo}"
 
         historia = Parser.ler_historia(arquivo)
         unless Validator.validar(historia)
           ignored += 1
-          puts "❌ História inválida: #{arquivo}"
+          puts "❌ #{I18n.t('messages.invalid_story')}: #{arquivo}"
           next
         end
 
-        # Geração de feature
-        if %w[gemini chatgpt].include?(modo)
-          puts "🤖 Gerando cenários com IA (#{modo.capitalize})..."
+        # Geração via IA (ChatGPT, Gemini, Deepseek)
+        if %w[gemini chatgpt deepseek].include?(modo)
+          puts I18n.t('messages.start_ia', modo: modo.capitalize)
           idioma = IA::GeminiCliente.detecta_idioma_arquivo(arquivo)
 
-          feature_text = Bddgenx::Support::Loader.run("⏳ Aguardando resposta da IA...") do
-            if modo == 'gemini'
+          feature_text = Support::Loader.run(I18n.t('messages.ia_waiting'), :default) do
+            case modo
+            when 'gemini'
               IA::GeminiCliente.gerar_cenarios(historia, idioma)
-            else
+            when 'chatgpt'
               IA::ChatGptCliente.gerar_cenarios(historia, idioma)
+            when 'deepseek'
+              IA::DeepseekCliente.gerar_cenarios(historia, idioma)
             end
           end
 
@@ -118,11 +128,13 @@ module Bddgenx
             feature_content = Bddgenx::GherkinCleaner.limpar(feature_text)
           else
             ignored += 1
-            puts "❌ Falha ao gerar com IA: #{arquivo}"
+            puts I18n.t('messages.feature_fail', arquivo: arquivo)
             next
           end
         else
-          feature_path, feature_content = Bddgenx::Support::Loader.run("⛏️  Gerando feature estática...", :dots) do
+          # Geração local (modo static)
+          feature_path, feature_content = Support::Loader.run(I18n.t('messages.start_static'), :dots) do
+            sleep(2)
             Generator.gerar_feature(historia)
           end
         end
@@ -130,29 +142,23 @@ module Bddgenx
         Backup.salvar_versao_antiga(feature_path)
         features += 1 if Generator.salvar_feature(feature_path, feature_content)
 
-        # Geração de steps
         if StepsGenerator.gerar_passos(feature_path)
           steps += 1
         else
           skipped_steps << feature_path
         end
 
-        # Exportação de PDF (apenas novos)
         FileUtils.mkdir_p('reports')
         result = PDFExporter.exportar_todos(only_new: true)
         generated_pdfs.concat(result[:generated])
         skipped_pdfs.concat(result[:skipped])
       end
 
-      # Exibe relatório final
-      puts "\n✅ Processamento concluído"
-      puts "- Total de histórias:    #{total}"
-      puts "- Features geradas:      #{features}"
-      puts "- Steps gerados:         #{steps}"
-      puts "- Steps ignorados:       #{skipped_steps.size}"
-      puts "- PDFs gerados:          #{generated_pdfs.size}"
-      puts "- PDFs já existentes:    #{skipped_pdfs.size}"
-      puts "- Histórias ignoradas:   #{ignored}"
+      # Resumo final
+      puts "\n#{I18n.t('messages.processing_done')}"
+      puts "- #{I18n.t('messages.total_histories')}:    #{total}"
+      puts "- #{I18n.t('messages.features_generated')}: #{features}"
+      puts "- #{I18n.t('messages.steps_generated')}:    #{steps}"
     end
   end
 end

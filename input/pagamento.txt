@@ -1,4 +1,4 @@
-# language: pt
+# language: en
 Como um cliente do e-commerce
 Quero adicionar produtos ao carrinho
 Para finalizar minha compra com praticidade

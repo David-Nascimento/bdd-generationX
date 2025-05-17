@@ -1,10 +1,10 @@
 # lib/bddgenx/generator.rb
 # encoding: utf-8
 #
-# Este arquivo define a classe Generator, responsável por gerar arquivos
-# .feature a partir de um hash de história ou de um arquivo de história em texto.
-# Suporta Gherkin em Português e Inglês, inclusão de tags, cenários simples
-# e esquemas de cenário com exemplos.
+# Classe responsável pela geração de arquivos `.feature` no formato Gherkin
+# a partir de arquivos de entrada de histórias ou estruturas hash.
+# Suporta palavras-chave Gherkin em Português e Inglês, além de integração com IA
+# (ChatGPT ou Gemini) para geração automática de cenários.
 
 module Bddgenx
   class Generator
@@ -14,37 +14,39 @@ module Bddgenx
     # Palavras-chave do Gherkin em Inglês
     GHERKIN_KEYS_EN = %w[Given When Then And But].freeze
 
-    # Mapeamento de PT → EN
+    # Mapeamento PT → EN
     GHERKIN_MAP_PT_EN = GHERKIN_KEYS_PT.zip(GHERKIN_KEYS_EN).to_h
 
-    # Mapeamento de EN → PT
+    # Mapeamento EN → PT
     GHERKIN_MAP_EN_PT = GHERKIN_KEYS_EN.zip(GHERKIN_KEYS_PT).to_h
 
-    # Todas as palavras-chave reconhecidas
+    # Todas as palavras-chave reconhecidas pelos parsers
     ALL_KEYS = GHERKIN_KEYS_PT + GHERKIN_KEYS_EN
 
     ##
     # Extrai todas as linhas de exemplo de um array de strings.
     #
-    # @param raw [Array<String>] um array contendo linhas de texto
-    # @return [Array<String>] apenas as linhas que começam com '|', ou seja, exemplos
+    # @param raw [Array<String>] Array com linhas do grupo de passos
+    # @return [Array<String>] Somente as linhas que contêm exemplos (começam com '|')
     def self.dividir_examples(raw)
       raw.select { |l| l.strip.start_with?('|') }
     end
 
     ##
-    # Gera o conteúdo de um arquivo `.feature` a partir de uma história.
-    # Pode operar em três modos: estático (hash ou arquivo estruturado),
-    # IA com Gemini, ou IA com ChatGPT.
+    # Gera o conteúdo de um arquivo `.feature` baseado na história fornecida.
+    # Pode operar em três modos:
+    # - :static (sem IA)
+    # - :chatgpt (usando OpenAI)
+    # - :gemini (usando Google Gemini)
     #
-    # @param input [String, Hash] caminho para um arquivo .txt ou um hash estruturado
-    # @param override_path [String, nil] caminho alternativo para salvar o arquivo gerado
-    # @return [Array(String, String)] caminho do arquivo gerado e conteúdo do .feature
+    # @param input [String, Hash] Caminho para um `.txt` ou estrutura de história já processada
+    # @param override_path [String, nil] Caminho alternativo de saída
+    # @return [Array<String, String>] Caminho e conteúdo do `.feature`
     def self.gerar_feature(input, override_path = nil)
       modo = ENV['BDD_MODE']&.to_sym || :static
 
       if input.is_a?(String) && input.end_with?('.txt') && [:gemini, :chatgpt].include?(modo)
-        # Modo com IA: gera cenários automaticamente com base no texto da história
+        # Geração com IA
         raw_txt = File.read(input)
         historia = {
           idioma: 'pt',
@@ -66,14 +68,14 @@ module Bddgenx
           passos: GherkinCleaner.limpar(texto_gerado).lines.map(&:strip).reject(&:empty?)
         }
       else
-        # Modo estático: utiliza estrutura vinda do Parser ou de um hash diretamente
+        # Geração estática
         historia = input.is_a?(String) ? Parser.ler_historia(input) : input
       end
 
       idioma = historia[:idioma] || 'pt'
       cont = 1
 
-      # Normaliza o nome base do arquivo
+      # Cria nome-base do arquivo .feature
       nome_base = historia[:quero]
                     .gsub(/[^a-z0-9]/i, '_')
                     .downcase
@@ -84,7 +86,7 @@ module Bddgenx
 
       caminho = override_path || "features/#{nome_base}.feature"
 
-      # Define palavras-chave com base no idioma
+      # Palavras-chave localizadas
       palavras = {
         feature:  idioma == 'en' ? 'Feature'          : 'Funcionalidade',
         contexto: idioma == 'en' ? 'Background'       : 'Contexto',
@@ -94,6 +96,7 @@ module Bddgenx
         regra:    idioma == 'en' ? 'Rule'             : 'Regra'
       }
 
+      # Cabeçalho do arquivo .feature
       conteudo = <<~GHK
         # language: #{idioma}
         #{palavras[:feature]}: #{historia[:quero].sub(/^Quero\s*/i,'')}
@@ -102,14 +105,14 @@ module Bddgenx
           # #{historia[:para]}
       GHK
 
+      # Controle para não repetir passos
       passos_unicos = Set.new
       pt_map = GHERKIN_MAP_PT_EN
       en_map = GHERKIN_MAP_EN_PT
       detect = ALL_KEYS
-      cont = 1
 
       historia[:grupos].each do |grupo|
-        passos   = grupo[:passos]  || []
+        passos   = grupo[:passos]   || []
         exemplos = grupo[:exemplos] || []
         next if passos.empty?
 
@@ -151,20 +154,21 @@ module Bddgenx
     end
 
     ##
-    # Gera o caminho padrão de saída para um arquivo `.feature` com base no nome do `.txt`.
+    # Retorna o caminho padrão do arquivo `.feature` baseado no nome do `.txt`.
     #
-    # @param arquivo_txt [String] caminho do arquivo .txt de entrada
-    # @return [String] caminho completo do arquivo .feature correspondente
+    # @param arquivo_txt [String] Caminho do arquivo .txt
+    # @return [String] Caminho final da feature gerada
     def self.path_para_feature(arquivo_txt)
       nome = File.basename(arquivo_txt, '.txt')
       File.join('features', "#{nome}.feature")
     end
 
     ##
-    # Salva o conteúdo gerado no disco, criando diretórios se necessário.
+    # Salva o conteúdo do arquivo `.feature` no disco.
+    # Cria diretórios intermediários, se necessário.
     #
-    # @param caminho [String] caminho completo para salvar o arquivo
-    # @param conteudo [String] conteúdo do arquivo .feature
+    # @param caminho [String] Caminho completo do arquivo
+    # @param conteudo [String] Conteúdo da feature a ser salva
     # @return [void]
     def self.salvar_feature(caminho, conteudo)
       FileUtils.mkdir_p(File.dirname(caminho))

@@ -1,0 +1,8 @@
+example_id                               | status | run_time        |
+---------------------------------------- | ------ | --------------- |
+./spec/gherkin_cleaner_spec.rb[1:1]      | passed | 0.00408 seconds |
+./spec/gherkin_cleaner_spec.rb[1:2]      | passed | 0.00016 seconds |
+./spec/ghkerin_step_cleaner_spec.rb[1:1] | passed | 0.0002 seconds  |
+./spec/ghkerin_step_cleaner_spec.rb[1:2] | passed | 0.00393 seconds |
+./spec/ia_cliente_spec.rb[1:1]           | passed | 0.07028 seconds |
+./spec/ia_cliente_spec.rb[1:2]           | passed | 0.04901 seconds |

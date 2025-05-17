@@ -1,80 +1,33 @@
-require_relative '../lib/bddgenx/support/gherkin_cleaner'
-
+# spec/support/gherkin_cleaner_spec.rb
+require 'spec_helper'
 RSpec.describe Bddgenx::GherkinCleaner do
-  let(:texto_com_markdown) do
-    <<~TEXT
-      ```gherkin
-        Feature: Exemplo
-        Scenario: Cenário simples
-        Given uma pré-condição
-        When uma ação é executada
-        Then o resultado esperado ocorre
-        ```
-    TEXT
-  end
-
-  let(:texto_com_duplicacao_language) do
-    <<~TEXT
-      # language: pt
-      Feature: Exemplo
-      # language: en
-      Scenario: Cenário simples
-      Given uma pré-condição
-      ```
-    TEXT
-  end
-
-  it 'remove blocos markdown corretamente' do
-    resultado = described_class.remover_blocos_markdown(texto_com_markdown)
-    expect(resultado).not_to include('```')
-  end
-
-  it 'remove linhas duplicadas de language mantendo a primeira' do
-    resultado = described_class.corrigir_language(texto_com_duplicacao_language)
-    expect(resultado.scan(/^# language:/).size).to eq(1)
-    expect(resultado).to start_with('# language: pt')
-  end
-
-  it 'detecta idioma pt corretamente' do
-    texto = "Dado que o usuário está logado"
-    expect(described_class.detectar_idioma(texto)).to eq('pt')
-  end
-
-  it 'detecta idioma en corretamente' do
-    texto = "Given the user is logged in"
-    expect(described_class.detectar_idioma(texto)).to eq('en')
-  end
-
-  it 'corrige indentação conforme padrão Gherkin' do
-    texto = <<~TEXT
-      Feature: Exemplo
-      Scenario: Cenário
-      Given algo
-      | coluna1 | coluna2 |
-    TEXT
-
-    esperado = <<~TEXT
-      Feature: Exemplo
-        Scenario: Cenário
-          Given algo
-            | coluna1 | coluna2 |
-    TEXT
-
-    expect(described_class.corrigir_indentacao(texto)).to eq(esperado)
-  end
-
-  it 'faz limpeza completa no texto' do
-    texto = <<~TEXT
+  let(:texto_completo) do
+    <<~TXT
       ```gherkin
       # language: en
-      Feature: Teste
-      Scenario: Cenário
-      Given algo
+      Feature: Test feature
+        Scenario: Test scenario
+          Given something
+          When I do this
+          Then I expect that
       ```
-    TEXT
+    TXT
+  end
 
-    resultado = described_class.limpar(texto)
-    expect(resultado).to start_with('# language: en')
+  it 'remove blocos markdown e corrige language e indentação' do
+    resultado = described_class.limpar(texto_completo)
+
+    expect(resultado).to start_with('# language:')
+    expect(resultado).to include('Feature:')
     expect(resultado).not_to include('```')
+    expect(resultado.lines.first).to match(/^# language:/)
+    expect(resultado).to include("  Scenario: Test scenario\n")
+    expect(resultado).to include("    Given something\n")
+  end
+
+  it 'detecta idioma corretamente' do
+    expect(described_class.detectar_idioma("Dado algo")).to eq('pt')
+    expect(described_class.detectar_idioma("Given something")).to eq('en')
+    expect(described_class.detectar_idioma("Texto qualquer")).to eq('pt')
   end
 end

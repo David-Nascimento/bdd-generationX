@@ -101,13 +101,15 @@ module Bddgenx
         puts "\n🔍 #{I18n.t('messages.processing')}: #{arquivo}"
 
         historia = Parser.ler_historia(arquivo)
+        idioma = IA::GeminiCliente.detecta_idioma_arquivo(arquivo) || historia[:idioma]
+        historia[:idioma] = idioma
         unless Validator.validar(historia)
           ignored += 1
           puts "❌ #{I18n.t('messages.invalid_story')}: #{arquivo}"
           next
         end
 
-        # Geração via IA (ChatGPT, Gemini, Deepseek)
+        # Geração via IA (ChatGPT, Gemini)
         if %w[gemini chatgpt].include?(modo)
           puts I18n.t('messages.start_ia', modo: modo.capitalize)
           idioma = IA::GeminiCliente.detecta_idioma_arquivo(arquivo)

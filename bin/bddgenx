@@ -1,4 +1,12 @@
 #!/usr/bin/env ruby
-require_relative "../lib/bddgenx/generators/runner"
+# bin/bddgenx
 
-Bddgenx::Runner.execute
+require_relative '../lib/bddgenx'
+
+# Permite usar: `bddgenx --init`
+if ARGV.include?('--init')
+  Bddgenx::Setup.run
+  exit 0
+end
+
+puts "ℹ️  Use 'bddgenx --init' para iniciar o projeto."

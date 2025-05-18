@@ -173,7 +173,7 @@ module Bddgenx
     def self.salvar_feature(caminho, conteudo)
       FileUtils.mkdir_p(File.dirname(caminho))
       File.write(caminho, conteudo)
-      puts "✅ Arquivo .feature gerado: #{caminho}"
+      puts I18n.t('messages.feature_created', caminho: caminho)
     end
   end
 end

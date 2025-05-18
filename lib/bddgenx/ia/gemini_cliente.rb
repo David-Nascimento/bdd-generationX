@@ -7,7 +7,7 @@ module Bddgenx
     # de conteúdo, aqui usado para criar cenários BDD no formato Gherkin.
     #
     class GeminiCliente
-      GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'.freeze
+      GEMINI_API_URL = ENV['GEMINI_API_URL']
 
       ##
       # Gera cenários BDD baseados em uma história, solicitando à API Gemini

@@ -7,7 +7,7 @@ module Bddgenx
     # cenários BDD no formato Gherkin, com suporte a fallback para Gemini.
     #
     class ChatGptCliente
-      CHATGPT_API_URL = 'https://api.openai.com/v1/chat/completions'.freeze
+      CHATGPT_API_URL = ENV['CHATGPT_API_URL']
       MODEL = 'gpt-4o'
 
       ##

@@ -108,7 +108,7 @@ module Bddgenx
         end
 
         # Geração via IA (ChatGPT, Gemini, Deepseek)
-        if %w[gemini chatgpt deepseek].include?(modo)
+        if %w[gemini chatgpt].include?(modo)
           puts I18n.t('messages.start_ia', modo: modo.capitalize)
           idioma = IA::GeminiCliente.detecta_idioma_arquivo(arquivo)
 
@@ -118,8 +118,6 @@ module Bddgenx
               IA::GeminiCliente.gerar_cenarios(historia, idioma)
             when 'chatgpt'
               IA::ChatGptCliente.gerar_cenarios(historia, idioma)
-            when 'deepseek'
-              IA::DeepseekCliente.gerar_cenarios(historia, idioma)
             end
           end
 

@@ -24,12 +24,18 @@ module Bddgenx
     ALL_KEYS = GHERKIN_KEYS_PT + GHERKIN_KEYS_EN
 
     ##
-    # Extrai todas as linhas de exemplo de um array de strings.
-    #
-    # @param raw [Array<String>] Array com linhas do grupo de passos
-    # @return [Array<String>] Somente as linhas que contêm exemplos (começam com '|')
-    def self.dividir_examples(raw)
-      raw.select { |l| l.strip.start_with?('|') }
+    # Função para extrair o idioma do arquivo .txt
+    # @param txt_file [String] Caminho do arquivo .txt
+    # @return [String] O idioma extraído ou 'pt' como padrão
+    def self.obter_idioma_do_arquivo(txt_file)
+      idioma = nil
+      File.foreach(txt_file) do |line|
+        if line.strip.start_with?('# language:')
+          idioma = line.strip.split(':').last.strip.downcase
+          break
+        end
+      end
+      idioma || 'pt'  # Retorna 'pt' como padrão caso o idioma não seja encontrado
     end
 
     ##
@@ -49,7 +55,7 @@ module Bddgenx
         # Geração com IA
         raw_txt = File.read(input)
         historia = {
-          idioma: 'pt',
+          idioma: 'pt', # Idioma inicial, caso não seja detectado no arquivo
           quero: File.basename(input, '.txt').tr('_', ' ').capitalize,
           como: '',
           para: '',
@@ -72,7 +78,8 @@ module Bddgenx
         historia = input.is_a?(String) ? Parser.ler_historia(input) : input
       end
 
-      idioma = historia[:idioma] || 'pt'
+      # Atribui o idioma corretamente antes da geração do conteúdo
+      idioma = historia[:idioma] || obter_idioma_do_arquivo(input) # Uso da função para pegar o idioma do arquivo
       cont = 1
 
       # Cria nome-base do arquivo .feature
@@ -177,3 +184,5 @@ module Bddgenx
     end
   end
 end
+
+

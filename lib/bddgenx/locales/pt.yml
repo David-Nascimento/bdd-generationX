@@ -11,6 +11,7 @@ pt:
     features_generated: "Features geradas"
     steps_generated: "Steps gerados"
     feature_created: "✅ Arquivo .feature gerado: %{caminho}"
+    fallback_gemini: "🔁 Tentando gerar com Gemini como fallback..."
   gherkin:
     feature: "Funcionalidade"
     context: "Contexto"
@@ -24,4 +25,30 @@ pt:
     generated: "✅ Steps gerados: %{path}"
   errors:
     invalid_path: "Caminho esperado como String, recebeu %{path}"
+    ia_no_content: "❌ Resposta da IA sem conteúdo de texto"
+    gemini_error: "❌ Erro ao chamar Gemini: %{code} - %{body}"
+    chatgpt_key_missing: "❌ API Key do ChatGPT não encontrada no .env (OPENAI_API_KEY)"
+    openai_quota: "❌ Limite de uso da API OpenAI excedido."
+    openai_check_usage: "🔗 Verifique sua conta: https://platform.openai.com/account/usage"
+    feature_not_found: "⚠️ Feature não encontrada: %{feature}"
+    pdf_generation_failed: "❌ Erro ao gerar PDF de %{file}: %{error}"
+    font_fallback: "⚠️ Fontes DejaVuSansMono ausentes ou corrompidas em %{font}. Usando fallback Courier."
+  backup:
+    created: "📦 Backup criado: %{path}"
+  validator:
+    missing_header: "❌ Cabeçalho incompleto (Como, Quero, Para obrigatórios)"
+    no_blocks: "❌ Nenhum grupo de blocos detectado"
+    empty_group: "❌ Grupo %{index} do tipo [%{type}] está vazio"
+    invalid_examples: "❌ Grupo de EXAMPLES no bloco %{index} não contém tabela válida"
+    found_errors: "⚠️  Erros encontrados no arquivo:"
+  setup:
+    init: "🔧 Iniciando estrutura com Bddgenx::Setup.run"
+    spinner_checking: "Verificando estrutura..."
+    dir_created: "📁 Diretório criado: %{path} ✔️"
+    dir_exists: "📁 Diretório já existe: %{path} ✔️"
+    file_created: "📄 Arquivo criado: %{path} ✔️"
+    file_exists: "📄 Arquivo já existe: %{path} ✔️"
+    success: "✅ Estrutura finalizada com sucesso!"
+  cli:
+    init_hint: "ℹ️  Use 'bddgenx --init' para iniciar o projeto."
 

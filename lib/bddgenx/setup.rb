@@ -5,7 +5,7 @@ module Bddgenx
     SPINNER_FRAMES = %w[⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏].freeze
     SPINNER_DELAY = 0.1
     def self.run
-      thread, stop = start_spinner("Verificando estrutura...")
+      thread, stop = start_spinner(I18n.t('setup.spinner_checking'))
 
       resultados = []
       resultados << verificar("input") do
@@ -27,24 +27,24 @@ module Bddgenx
       stop_spinner(thread, stop)
 
       resultados.each { |mensagem| puts mensagem }
-      puts "\n✅ Estrutura finalizada com sucesso!"
+      puts "\n#{I18n.t('setup.success')}"
     end
 
     def self.verificar(path, is_file: false)
       if is_file
         if File.exist?(path)
-          "📄 Arquivo já existe: #{path} ✔️"
+          I18n.t('setup.file_exists', path: path)
         else
           yield if block_given?
-          "📄 Arquivo criado: #{path} ✔️"
+          I18n.t('setup.file_created', path: path)
         end
       else
         if Dir.exist?(path)
-          "📁 Diretório já existe: #{path} ✔️"
+          I18n.t('setup.dir_exists', path: path)
         else
           FileUtils.mkdir_p(path)
           yield if block_given?
-          "📁 Diretório criado: #{path} ✔️"
+          I18n.t('setup.dir_created', path: path)
         end
       end
     end

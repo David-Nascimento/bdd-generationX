@@ -22,31 +22,31 @@ module Bddgenx
 
       # Verificação do cabeçalho obrigatório
       unless historia[:como] && historia[:quero] && historia[:para]
-        erros << "❌ Cabeçalho incompleto (Como, Quero, Para obrigatórios)"
+        erros << I18n.t('validator.missing_header')
       end
 
       # Verificação de grupos de passos
       if historia[:grupos].nil? || historia[:grupos].empty?
-        erros << "❌ Nenhum grupo de blocos detectado"
+        erros << I18n.t('validator.no_blocks')
       else
         historia[:grupos].each_with_index do |grupo, idx|
           # Cada grupo deve conter passos ou exemplos
           if (grupo[:passos].nil? || grupo[:passos].empty?) &&
              (grupo[:exemplos].nil? || grupo[:exemplos].empty?)
-            erros << "❌ Grupo #{idx + 1} do tipo [#{grupo[:tipo]}] está vazio"
+            erros << I18n.t('validator.empty_group', index: idx + 1, type: grupo[:tipo])
           end
 
           # Validação específica para blocos de exemplos
           if grupo[:tipo].casecmp('EXAMPLES').zero? &&
              grupo[:exemplos].none? { |l| l.strip.start_with?('|') }
-            erros << "❌ Grupo de EXAMPLES no bloco #{idx + 1} não contém tabela válida"
+            erros << I18n.t('validator.invalid_examples', index: idx + 1)
           end
         end
       end
 
       # Exibe erros e retorna false se houver falhas
       if erros.any?
-        puts "⚠️  Erros encontrados no arquivo:"
+        puts I18n.t('validator.found_errors')
         erros.each { |e| puts "   - #{e}" }
         return false
       end

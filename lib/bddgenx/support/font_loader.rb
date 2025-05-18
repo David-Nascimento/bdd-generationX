@@ -38,7 +38,7 @@ module Bddgenx
       if arquivos.values.all? { |path| File.file?(path) && File.size(path) > 12 }
         { 'DejaVuSansMono' => arquivos }
       else
-        warn "⚠️ Fontes DejaVuSansMono ausentes ou corrompidas em #{base}. Usando fallback Courier."
+        warn I18n.t('errors.font_fallback', font: base)
         {}
       end
     end

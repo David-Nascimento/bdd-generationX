@@ -37,7 +37,7 @@ module Bddgenx
 
       features_list.each do |feature|
         unless File.file?(feature)
-          warn "⚠️ Feature não encontrada: #{feature}"
+          warn I18n.t('errors.feature_not_found', feature: feature)
           next
         end
 
@@ -151,7 +151,7 @@ module Bddgenx
         pdf.number_pages 'Página <page> de <total>', align: :right, size: 8
       end
     rescue => e
-      warn "❌ Erro ao gerar PDF de #{origem}: #{e.message}"
+      warn I18n.t('errors.pdf_generation_failed', file: origem, error: e.message)
     end
   end
 end

@@ -11,6 +11,7 @@ en:
     features_generated: "Generated features"
     steps_generated: "Generated steps"
     feature_created: "✅ .feature file generated: %{caminho}"
+    fallback_gemini: "🔁 Trying to generate with Gemini as fallback..."
   gherkin:
     feature: "Feature"
     context: "Background"
@@ -24,5 +25,29 @@ en:
     generated: "✅ Steps generated: %{path}"
   errors:
     invalid_path: "Expected path as String, got %{path}"
-  messages2:
-    processing_done: "✅ Processing complete"
+    ia_no_content: "❌ No content returned from AI"
+    gemini_error: "❌ Error calling Gemini: %{code} - %{body}"
+    chatgpt_key_missing: "❌ ChatGPT API key not found in .env (OPENAI_API_KEY)"
+    openai_quota: "❌ OpenAI API quota exceeded."
+    openai_check_usage: "🔗 Check your usage: https://platform.openai.com/account/usage"
+    feature_not_found: "⚠️ Feature not found: %{feature}"
+    pdf_generation_failed: "❌ Failed to generate PDF for %{file}: %{error}"
+    font_fallback: "⚠️ DejaVuSansMono fonts missing or corrupted in %{font}. Falling back to Courier."
+  backup:
+    created: "📦 Backup created: %{path}"
+  validator:
+    missing_header: "❌ Missing header (Como, Quero, Para are required)"
+    no_blocks: "❌ No step groups detected"
+    empty_group: "❌ Group %{index} of type [%{type}] is empty"
+    invalid_examples: "❌ EXAMPLES group in block %{index} does not contain a valid table"
+    found_errors: "⚠️  Errors found in the file:"
+  setup:
+    init: "🔧 Initializing structure with Bddgenx::Setup.run"
+    spinner_checking: "Checking structure..."
+    dir_created: "📁 Directory created: %{path} ✔️"
+    dir_exists: "📁 Directory already exists: %{path} ✔️"
+    file_created: "📄 File created: %{path} ✔️"
+    file_exists: "📄 File already exists: %{path} ✔️"
+    success: "✅ Structure successfully completed!"
+  cli:
+    init_hint: "ℹ️  Use 'bddgenx --init' to initialize the project."

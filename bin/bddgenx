@@ -9,4 +9,5 @@ if ARGV.include?('--init')
   exit 0
 end
 
-puts "ℹ️  Use 'bddgenx --init' para iniciar o projeto."
+puts I18n.t('cli.init_hint')
+

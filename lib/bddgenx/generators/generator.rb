@@ -65,7 +65,7 @@ module Bddgenx
         texto_gerado = if modo == :gemini
                          GeminiCliente.gerar_cenarios(raw_txt)
                        else
-                         ChatGPTCliente.gerar_cenarios(raw_txt)
+                         ChatGptCliente.gerar_cenarios(raw_txt)
                        end
 
         historia[:grupos] << {

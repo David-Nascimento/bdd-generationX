@@ -24,7 +24,7 @@ module Bddgenx
         api_key = Bddgenx.configuration.openai_api_key  # para ChatGPT
 
         unless api_key
-          warn "❌ API Key do ChatGPT não encontrada no .env (OPENAI_API_KEY)"
+          warn I18n.t('errors.chatgpt_key_missing')
           return fallback_com_gemini(historia, idioma)
         end
 
@@ -112,14 +112,14 @@ module Bddgenx
             texto_limpo.prepend("# language: #{idioma}\n") unless texto_limpo.start_with?("# language:")
             return texto_limpo
           else
-            warn "❌ Resposta da IA sem conteúdo de texto"
+            warn I18n.t('errors.ia_no_content')
             warn JSON.pretty_generate(json)
             return fallback_com_gemini(historia, idioma)
           end
         else
           if response.code.to_i == 429
-            warn "❌ Limite de uso da API OpenAI excedido."
-            warn "🔗 Verifique sua conta: https://platform.openai.com/account/usage"
+            warn I18n.t('errors.openai_quota')
+            warn I18n.t('errors.openai_check_usage')
           end
           return fallback_com_gemini(historia, idioma)
         end

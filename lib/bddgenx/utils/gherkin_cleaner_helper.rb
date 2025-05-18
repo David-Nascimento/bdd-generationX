@@ -1,5 +1,5 @@
 module Bddgenx
-  class GherkinCleaner
+  module Utils
     # Método principal para limpar o texto Gherkin recebido.
     # Executa uma sequência de operações para deixar o texto formatado e correto.
     #

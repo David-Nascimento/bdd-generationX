@@ -106,15 +106,15 @@ module Bddgenx
           texto_ia = json["candidates"].first.dig("content", "parts", 0, "text")
           if texto_ia
             # Limpeza e sanitização do texto para manter padrão Gherkin
-            texto_limpo = Bddgenx::GherkinCleaner.limpar(texto_ia)
-            Utils::StepCleaner.remover_steps_duplicados(texto_ia, idioma)
+            texto_limpo = Utils.limpar(texto_ia)
+            Utils.remover_steps_duplicados(texto_ia, idioma)
 
             # Ajuste da diretiva de idioma na saída gerada
             texto_limpo.sub!(/^# language: .*/, "# language: #{idioma}")
             texto_limpo.prepend("# language: #{idioma}\n") unless texto_limpo.start_with?("# language:")
 
             # Garante diretiva de idioma
-            feature_text = Bddgenx::GherkinCleaner.limpar(texto_ia)
+            feature_text = Utils.limpar(texto_ia)
             feature_text.sub!(/^# language: .*/, "") # remove qualquer # language: existente
             feature_text.prepend("# language: #{idioma}\n") # insere a correta
 
@@ -128,24 +128,6 @@ module Bddgenx
           warn I18n.t('errors.gemini_error', code: response.code, body: response.body)
           return nil
         end
-      end
-
-      ##
-      # Detecta o idioma do arquivo de feature pela linha "# language:".
-      #
-      # @param caminho_arquivo [String] Caminho do arquivo para detecção do idioma.
-      # @return [String] Código do idioma detectado (ex: 'pt'), padrão 'pt'.
-      #
-      def self.detecta_idioma_arquivo(caminho_arquivo)
-        return 'pt' unless File.exist?(caminho_arquivo)
-
-        File.foreach(caminho_arquivo) do |linha|
-          if linha =~ /^#\s*language:\s*(\w{2})/i
-            return $1.downcase
-          end
-        end
-
-        'pt' # idioma padrão caso não encontre
       end
     end
   end

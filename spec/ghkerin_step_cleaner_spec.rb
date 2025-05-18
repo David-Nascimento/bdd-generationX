@@ -1,7 +1,7 @@
 # spec/utils/step_cleaner_spec.rb
 require 'spec_helper'
 
-RSpec.describe Bddgenx::Utils::StepCleaner do
+RSpec.describe Bddgenx::Utils do
   let(:texto_com_steps_duplicados) do
     <<~TXT
       Dado que eu tenho o numero "12"

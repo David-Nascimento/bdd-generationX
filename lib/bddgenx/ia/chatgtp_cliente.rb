@@ -28,7 +28,7 @@ module Bddgenx
           return fallback_com_gemini(historia, idioma)
         end
 
-        # Palavras-chave Gherkin para português e inglês
+
         keywords_pt = {
           feature: "Funcionalidade",
           scenario: "Cenário",
@@ -104,8 +104,8 @@ module Bddgenx
           texto_ia = json.dig("choices", 0, "message", "content")
 
           if texto_ia
-            texto_limpo = Bddgenx::GherkinCleaner.limpar(texto_ia)
-            Utils::StepCleaner.remover_steps_duplicados(texto_ia, idioma)
+            texto_limpo = Utils.limpar(texto_ia)
+            Utils::remover_steps_duplicados(texto_ia, idioma)
 
             # Ajusta a linha de idioma no arquivo gerado
             texto_limpo.sub!(/^# language: .*/, "# language: #{idioma}")
@@ -136,24 +136,6 @@ module Bddgenx
       def self.fallback_com_gemini(historia, idioma)
         warn I18n.t('messages.fallback_gemini')
         GeminiCliente.gerar_cenarios(historia, idioma)
-      end
-
-      ##
-      # Detecta o idioma de um arquivo de feature pela linha "# language:".
-      #
-      # @param caminho_arquivo [String] Caminho para o arquivo de feature.
-      # @return [String] Código do idioma detectado ('pt' por padrão).
-      #
-      def self.detecta_idioma_arquivo(caminho_arquivo)
-        return 'pt' unless File.exist?(caminho_arquivo)
-
-        File.foreach(caminho_arquivo) do |linha|
-          if linha =~ /^#\s*language:\s*(\w{2})/i
-            return $1.downcase
-          end
-        end
-
-        'pt'
       end
     end
   end

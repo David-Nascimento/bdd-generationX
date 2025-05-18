@@ -1,6 +1,6 @@
 # spec/support/gherkin_cleaner_spec.rb
 require 'spec_helper'
-RSpec.describe Bddgenx::GherkinCleaner do
+RSpec.describe Bddgenx::Utils do
   let(:texto_completo) do
     <<~TXT
       ```gherkin

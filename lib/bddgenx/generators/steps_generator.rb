@@ -8,15 +8,6 @@
 
 module Bddgenx
   class StepsGenerator
-    # Palavras-chave Gherkin em Português
-    GHERKIN_KEYS_PT = %w[Dado Quando Então E Mas].freeze
-
-    # Palavras-chave Gherkin em Inglês
-    GHERKIN_KEYS_EN = %w[Given When Then And But].freeze
-
-    # Conjunto de todas as palavras-chave reconhecidas
-    ALL_KEYS = GHERKIN_KEYS_PT + GHERKIN_KEYS_EN
-
     ##
     # Transforma uma string em camelCase (sem alterar acentuação).
     #
@@ -38,23 +29,20 @@ module Bddgenx
       raise ArgumentError, I18n.t('errors.invalid_path', path: feature_path.class) unless feature_path.is_a?(String)
 
       linhas = File.readlines(feature_path)
+      lang = Utils::detecta_idioma_de_texto(linhas.join)
 
-      # Detecta o idioma a partir da linha `# language:`
-      lang = if (m = linhas.find { |l| l =~ /^#\s*language:\s*(\w+)/i })
-               m[/^#\s*language:\s*(\w+)/i, 1].downcase
-             else
-               'pt'
-             end
+      I18n.locale = lang.to_sym rescue :pt
+
 
       # Define o locale do I18n conforme idioma detectado
       I18n.locale = lang.to_sym rescue :pt
 
-      pt_para_en = GHERKIN_KEYS_PT.zip(GHERKIN_KEYS_EN).to_h
-      en_para_pt = GHERKIN_KEYS_EN.zip(GHERKIN_KEYS_PT).to_h
+      pt_para_en = Utils::GHERKIN_KEYS_PT.zip(Utils::GHERKIN_KEYS_EN).to_h
+      en_para_pt = Utils::GHERKIN_KEYS_EN.zip(Utils::GHERKIN_KEYS_PT).to_h
 
       # Seleciona apenas as linhas que representam passos
       linhas_passos = linhas.map(&:strip).select do |linha|
-        ALL_KEYS.any? { |chave| linha.start_with?(chave + ' ') }
+        Utils::ALL_KEYS.any? { |chave| linha.start_with?(chave + ' ') }
       end
 
       return false if linhas_passos.empty?

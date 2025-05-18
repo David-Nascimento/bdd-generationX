@@ -8,36 +8,6 @@
 
 module Bddgenx
   class Generator
-    # Palavras-chave do Gherkin em Português
-    GHERKIN_KEYS_PT = %w[Dado Quando Então E Mas].freeze
-
-    # Palavras-chave do Gherkin em Inglês
-    GHERKIN_KEYS_EN = %w[Given When Then And But].freeze
-
-    # Mapeamento PT → EN
-    GHERKIN_MAP_PT_EN = GHERKIN_KEYS_PT.zip(GHERKIN_KEYS_EN).to_h
-
-    # Mapeamento EN → PT
-    GHERKIN_MAP_EN_PT = GHERKIN_KEYS_EN.zip(GHERKIN_KEYS_PT).to_h
-
-    # Todas as palavras-chave reconhecidas pelos parsers
-    ALL_KEYS = GHERKIN_KEYS_PT + GHERKIN_KEYS_EN
-
-    ##
-    # Função para extrair o idioma do arquivo .txt
-    # @param txt_file [String] Caminho do arquivo .txt
-    # @return [String] O idioma extraído ou 'pt' como padrão
-    def self.obter_idioma_do_arquivo(txt_file)
-      idioma = nil
-      File.foreach(txt_file) do |line|
-        if line.strip.start_with?('# language:')
-          idioma = line.strip.split(':').last.strip.downcase
-          break
-        end
-      end
-      idioma || 'pt'  # Retorna 'pt' como padrão caso o idioma não seja encontrado
-    end
-
     ##
     # Gera o conteúdo de um arquivo `.feature` baseado na história fornecida.
     # Pode operar em três modos:
@@ -48,9 +18,11 @@ module Bddgenx
     # @param input [String, Hash] Caminho para um `.txt` ou estrutura de história já processada
     # @param override_path [String, nil] Caminho alternativo de saída
     # @return [Array<String, String>] Caminho e conteúdo do `.feature`
+
     def self.gerar_feature(input, override_path = nil)
       modo = ENV['BDD_MODE']&.to_sym || :static
 
+      # Verifique o idioma antes de continuar
       if input.is_a?(String) && input.end_with?('.txt') && [:gemini, :chatgpt].include?(modo)
         # Geração com IA
         raw_txt = File.read(input)
@@ -62,6 +34,10 @@ module Bddgenx
           grupos: []
         }
 
+        # Detecta idioma do arquivo
+        idioma = Utils::detecta_idioma_de_texto(raw_txt)
+        historia[:idioma] = idioma
+
         texto_gerado = if modo == :gemini
                          GeminiCliente.gerar_cenarios(raw_txt)
                        else
@@ -71,29 +47,25 @@ module Bddgenx
         historia[:grupos] << {
           tipo: 'gerado',
           tag: 'ia',
-          passos: GherkinCleaner.limpar(texto_gerado).lines.map(&:strip).reject(&:empty?)
+          passos: Utils.limpar(texto_gerado).lines.map(&:strip).reject(&:empty?)
         }
       else
         # Geração estática
         historia = input.is_a?(String) ? Parser.ler_historia(input) : input
       end
 
-      # Atribui o idioma corretamente antes da geração do conteúdo
-      idioma = historia[:idioma] || obter_idioma_do_arquivo(input) # Uso da função para pegar o idioma do arquivo
+      # Verifique o idioma que está sendo usado
+      idioma = historia[:idioma] || Utils::obter_idioma_do_arquivo(input)
+
+      # Verifique se o idioma está correto
+      puts "Idioma detectado: #{idioma}"
+
       cont = 1
 
       # Cria nome-base do arquivo .feature
-      nome_base = historia[:quero]
-                    .gsub(/[^a-z0-9]/i, '_')
-                    .downcase
-                    .split('_')
-                    .reject(&:empty?)
-                    .first(5)
-                    .join('_')
-
+      nome_base = historia[:quero].gsub(/[^a-z0-9]/i, '_').downcase.split('_').reject(&:empty?).first(5).join('_')
       caminho = override_path || "features/#{nome_base}.feature"
 
-      # Palavras-chave localizadas
       palavras = {
         feature:  idioma == 'en' ? 'Feature'          : 'Funcionalidade',
         contexto: idioma == 'en' ? 'Background'       : 'Contexto',
@@ -103,7 +75,6 @@ module Bddgenx
         regra:    idioma == 'en' ? 'Rule'             : 'Regra'
       }
 
-      # Cabeçalho do arquivo .feature
       conteudo = <<~GHK
         # language: #{idioma}
         #{palavras[:feature]}: #{historia[:quero].sub(/^Quero\s*/i,'')}
@@ -114,9 +85,9 @@ module Bddgenx
 
       # Controle para não repetir passos
       passos_unicos = Set.new
-      pt_map = GHERKIN_MAP_PT_EN
-      en_map = GHERKIN_MAP_EN_PT
-      detect = ALL_KEYS
+      pt_map = Utils::GHERKIN_MAP_PT_EN
+      en_map = Utils::GHERKIN_MAP_EN_PT
+      detect = Utils::ALL_KEYS
 
       historia[:grupos].each do |grupo|
         passos   = grupo[:passos]   || []

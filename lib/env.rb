@@ -59,10 +59,12 @@ require 'bundler/setup' if File.exist?(File.expand_path('../../Gemfile', __FILE_
 # 🧩 Módulos utilitários da gem
 # --------------------------------------
 
-require_relative 'bddgenx/support/gherkin_cleaner'           # Sanitização de Gherkin gerado
-require_relative 'bddgenx/support/remover_steps_duplicados'  # Remove passos duplicados
 require_relative 'bddgenx/support/validator'                 # Valida estrutura de entrada
 require_relative 'bddgenx/support/font_loader'               # Carrega fontes do PDF
+
+require_relative 'bddgenx/utils/gherkin_cleaner_helper'           # Sanitização de Gherkin gerado
+require_relative 'bddgenx/utils/remover_steps_duplicados_helper'  # Remove passos duplicados
+require_relative 'bddgenx/utils/language_helper'
 
 # --------------------------------------
 # 🤖 Clientes de IA (ChatGPT, Gemini)

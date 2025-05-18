@@ -101,7 +101,7 @@ module Bddgenx
         puts "\n🔍 #{I18n.t('messages.processing')}: #{arquivo}"
 
         historia = Parser.ler_historia(arquivo)
-        idioma = IA::GeminiCliente.detecta_idioma_arquivo(arquivo) || historia[:idioma]
+        idioma = Utils.obter_idioma_do_arquivo(arquivo) || historia[:idioma]
         historia[:idioma] = idioma
         unless Validator.validar(historia)
           ignored += 1
@@ -112,7 +112,7 @@ module Bddgenx
         # Geração via IA (ChatGPT, Gemini)
         if %w[gemini chatgpt].include?(modo)
           puts I18n.t('messages.start_ia', modo: modo.capitalize)
-          idioma = IA::GeminiCliente.detecta_idioma_arquivo(arquivo)
+          idioma = Utils.obter_idioma_do_arquivo(arquivo) || historia[:idioma]
 
           feature_text = Support::Loader.run(I18n.t('messages.ia_waiting'), :default) do
             case modo
@@ -125,7 +125,7 @@ module Bddgenx
 
           if feature_text
             feature_path = Generator.path_para_feature(arquivo)
-            feature_content = Bddgenx::GherkinCleaner.limpar(feature_text)
+            feature_content = Utils.limpar(feature_text)
           else
             ignored += 1
             puts I18n.t('messages.feature_fail', arquivo: arquivo)

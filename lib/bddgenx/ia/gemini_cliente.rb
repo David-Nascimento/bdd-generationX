@@ -120,12 +120,12 @@ module Bddgenx
 
             return texto_limpo
           else
-            warn "❌ Resposta da IA sem conteúdo de texto"
+            warn I18n.t('errors.ia_no_content')
             warn JSON.pretty_generate(json)
             return nil
           end
         else
-          warn "❌ Erro ao chamar Gemini: #{response.code} - #{response.body}"
+          warn I18n.t('errors.gemini_error', code: response.code, body: response.body)
           return nil
         end
       end

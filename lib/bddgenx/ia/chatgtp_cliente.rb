@@ -134,7 +134,7 @@ module Bddgenx
       # @return [String] Cenários gerados pelo GeminiCliente.
       #
       def self.fallback_com_gemini(historia, idioma)
-        warn "🔁 Tentando gerar com Gemini como fallback..."
+        warn I18n.t('messages.fallback_gemini')
         GeminiCliente.gerar_cenarios(historia, idioma)
       end
 

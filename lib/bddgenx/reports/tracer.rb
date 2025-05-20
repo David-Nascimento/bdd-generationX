@@ -1,70 +1,141 @@
-# lib/bddgenx/tracer.rb
 # encoding: utf-8
 #
-# Este arquivo define a classe Tracer, responsável por gerar e manter
-# informações de rastreabilidade de cenários e passos em um arquivo CSV.
-# Útil para auditoria e análise de cobertura de cenários gerados.
+# Este arquivo define a classe `Tracer`, responsável por gerar arquivos de rastreabilidade
+# (CSV) a partir das features geradas automaticamente pela gem BDDGenX.
+#
+# Para cada feature processada, o `Tracer` extrai os cenários da própria feature `.feature`
+# e associa cada passo definido na história original com o bloco Gherkin correspondente.
+# O objetivo é fornecer visibilidade e rastreabilidade completa entre requisitos e testes.
+
+require 'csv'
+require 'fileutils'
+
 module Bddgenx
-  # Classe para adicionar registros de rastreabilidade a um relatório CSV.
+  # Classe responsável por rastrear os artefatos gerados pela gem
+  # e exportá-los em arquivos CSV, um por funcionalidade.
+  #
+  # Para cada grupo de passos (do `.txt`), associa os dados com o
+  # cenário equivalente gerado no arquivo `.feature`.
   class Tracer
-    # Adiciona entradas de rastreabilidade para cada passo de cada grupo
-    # da história em um arquivo CSV localizado em 'reports/output/rastreabilidade.csv'.
+    ##
+    # Adiciona entradas de rastreabilidade a um CSV baseado na feature gerada.
+    #
+    # - Cada funcionalidade recebe um arquivo CSV próprio, salvo em:
+    #   `reports/output/funcionalidade_<nome>.csv`
+    #
+    # - A coluna "BDD" contém o cenário completo extraído diretamente do `.feature`,
+    #   preservando a sintaxe original do Gherkin (cenário, steps, tags).
     #
     # @param historia [Hash]
-    #   Objeto de história contendo :quero (título da funcionalidade) e :grupos,
-    #   onde cada grupo possui :tipo, :tag, e :passos (Array<String>)
-    # @param nome_arquivo_feature [String]
-    #   Nome do arquivo .feature de onde os passos foram gerados
+    #   Hash representando a história extraída do `.txt`, contendo:
+    #   - :quero  → nome da funcionalidade
+    #   - :grupos → lista de blocos com :tipo, :tag e :passos
+    #
+    # @param feature_path [String]
+    #   Caminho do arquivo `.feature` já gerado no sistema
+    #
     # @return [void]
-    def self.adicionar_entrada(historia, nome_arquivo_feature)
-      # Garante existência do diretório de saída
+    def self.adicionar_entrada(historia, feature_path)
       FileUtils.mkdir_p('reports/output')
-      arquivo_csv = 'reports/output/rastreabilidade.csv'
 
-      # Cabeçalho padrão do CSV: identifica colunas
-      cabecalho = ['Funcionalidade', 'Tipo', 'Tag', 'Cenário', 'Passo', 'Origem']
+      nome_funcionalidade = historia[:quero].gsub(/^Quero\s*/, '').strip
+      nome_funcionalidade_sanitizado = nome_funcionalidade.downcase.gsub(/[^a-z0-9]+/, '_')
+      arquivo_csv = "reports/output/funcionalidade_#{nome_funcionalidade_sanitizado}.csv"
 
+      cabecalho = ['Funcionalidade', 'Tipo', 'Tag', 'Cenário', 'Passo', 'Origem', 'BDD']
       linhas = []
 
-      # Itera sobre grupos de passos para compor linhas de rastreabilidade
+      # Leitura real da feature gerada
+      blocos_gherkin = extrair_cenarios_gherkin(feature_path)
+
       historia[:grupos].each_with_index do |grupo, idx|
         tipo  = grupo[:tipo]
-        tag   = grupo[:tag]
+        tag   = grupo[:tag] || '-'
         passos = grupo[:passos] || []
-
-        nome_funcionalidade = historia[:quero].gsub(/^Quero\s*/, '').strip
         nome_cenario = "Cenário #{idx + 1}"
+
+        # Bloco Gherkin real do cenário gerado
+        gherkin_bloco = blocos_gherkin[idx] || ''
 
         passos.each do |passo|
           linhas << [
             nome_funcionalidade,
             tipo,
-            tag || '-',
+            tag,
             nome_cenario,
             passo,
-            File.basename(nome_arquivo_feature)
+            File.basename(feature_path),
+            gherkin_bloco
           ]
         end
       end
 
-      # Escreve ou anexa as linhas geradas ao CSV
       escrever_csv(arquivo_csv, cabecalho, linhas)
     end
 
-    # Escreve ou anexa registros em um arquivo CSV, criando cabeçalho se necessário.
+    ##
+    # Escreve ou anexa dados em um arquivo CSV.
+    # - Cria o cabeçalho caso seja a primeira escrita.
+    # - Evita duplicações com base na combinação "Passo + Origem".
     #
-    # @param caminho [String] Caminho completo para o arquivo CSV de rastreabilidade
-    # @param cabecalho [Array<String>] Array de títulos das colunas a serem escritos
-    # @param linhas [Array<Array<String>>] Dados a serem gravados no CSV (cada sub-array é uma linha)
+    # @param caminho [String] Caminho completo do arquivo CSV a ser salvo
+    # @param cabecalho [Array<String>] Títulos das colunas do CSV
+    # @param novas_linhas [Array<Array>] Linhas de conteúdo a serem gravadas
+    #
     # @return [void]
-    def self.escrever_csv(caminho, cabecalho, linhas)
-      # Verifica se é um novo arquivo para incluir o cabeçalho
+    def self.escrever_csv(caminho, cabecalho, novas_linhas)
       novo_arquivo = !File.exist?(caminho)
+
+      existentes = []
+      if File.exist?(caminho)
+        existentes = CSV.read(caminho, col_sep: ';', headers: true).map do |row|
+          [row['Passo'], row['Origem']]
+        end
+      end
 
       CSV.open(caminho, 'a+', col_sep: ';', force_quotes: true) do |csv|
         csv << cabecalho if novo_arquivo
-        linhas.each { |linha| csv << linha }
+
+        novas_linhas.each do |linha|
+          passo, origem = linha[4], linha[5]
+          next if existentes.include?([passo, origem])
+          csv << linha
+        end
       end
+    end
+
+    ##
+    # Extrai todos os cenários completos do arquivo `.feature` gerado,
+    # preservando a estrutura Gherkin original (cenários, tags, steps).
+    #
+    # Um novo bloco é iniciado quando uma das palavras-chave de título
+    # de cenário é encontrada.
+    #
+    # @param feature_path [String] Caminho completo do arquivo `.feature`
+    # @return [Array<String>] Lista de blocos Gherkin, um por cenário
+    def self.extrair_cenarios_gherkin(feature_path)
+      return [] unless File.exist?(feature_path)
+
+      content = File.read(feature_path)
+      linhas = content.lines
+
+      blocos = []
+      bloco_atual = []
+      capturando = false
+
+      linhas.each_with_index do |linha, i|
+        if linha.strip =~ /^(Scenario|Scenario Outline|Cenário|Esquema do Cenário):/i
+          # Novo cenário → salva anterior
+          blocos << bloco_atual.join if bloco_atual.any?
+          bloco_atual = [linha]
+          capturando = true
+        elsif capturando
+          bloco_atual << linha
+        end
+      end
+
+      blocos << bloco_atual.join if bloco_atual.any?
+      blocos
     end
   end
 end

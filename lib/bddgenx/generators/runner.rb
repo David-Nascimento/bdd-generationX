@@ -1,36 +1,49 @@
 # lib/bddgenx/cli.rb
 # encoding: utf-8
 #
-# Este arquivo define a classe Runner (CLI) da gem bddgenx,
-# responsável por orquestrar todo o fluxo de geração BDD:
-# leitura e validação de histórias, geração de features, steps,
-# exportação de PDFs e controle de modo (static / IA).
+# Este arquivo define a classe Runner (CLI) da gem BDDGenX.
+#
+# A Runner é responsável por orquestrar todo o fluxo de geração BDD:
+# - Leitura e validação de histórias (arquivos `.txt`)
+# - Geração de arquivos `.feature` e steps
+# - Integração com IA (ChatGPT, Gemini, Copilot)
+# - Exportação para PDF
+# - Rastreabilidade via CSV
+#
+# Esta classe é o ponto de entrada da gem em execução via terminal (CLI).
+# O comportamento é configurado com variáveis de ambiente como:
+# - BDDGENX_MODE (static, chatgpt, gemini, copilot)
+# - BDDGENX_LANG (pt, en)
 
 require_relative '../../bddgenx'
 
 module Bddgenx
-  # Classe principal de execução da gem.
-  # Atua como ponto de entrada (CLI) para processar arquivos de entrada
-  # e gerar todos os artefatos BDD relacionados.
+  # Classe principal de execução da gem BDDGenX.
+  # Controla o fluxo de leitura de histórias, geração de artefatos BDD
+  # e exportação de relatórios. Suporta execução via terminal.
   class Runner
 
     ##
-    # Retorna a lista de arquivos de entrada.
-    # Se houver argumentos em ARGV, utiliza-os como nomes de arquivos `.txt`.
-    # Caso contrário, chama prompt interativo.
+    # Retorna a lista de arquivos `.txt` a processar.
     #
-    # @param input_dir [String] Caminho do diretório de entrada
-    # @return [Array<String>] Lista de arquivos `.txt` a processar
+    # - Se ARGV contiver argumentos, usa esses nomes como arquivos `.txt`
+    # - Caso contrário, entra em modo interativo para seleção manual
+    #
+    # @param input_dir [String] Caminho do diretório com arquivos `.txt`
+    # @return [Array<String>] Lista de caminhos de arquivos `.txt`
     def self.choose_files(input_dir)
       ARGV.any? ? selecionar_arquivos_txt(input_dir) : choose_input(input_dir)
     end
 
     ##
-    # Processa argumentos ARGV e converte em caminhos válidos de arquivos `.txt`.
-    # Adiciona extensão `.txt` se ausente e remove arquivos inexistentes.
+    # Processa os argumentos da linha de comando (ARGV) e gera caminhos
+    # completos para arquivos `.txt` no diretório informado.
     #
-    # @param input_dir [String] Diretório onde estão os arquivos
-    # @return [Array<String>] Caminhos válidos para arquivos de entrada
+    # - Se a extensão `.txt` estiver ausente, ela é adicionada.
+    # - Arquivos inexistentes são ignorados com aviso.
+    #
+    # @param input_dir [String] Diretório base onde estão os arquivos `.txt`
+    # @return [Array<String>] Lista de arquivos válidos encontrados
     def self.selecionar_arquivos_txt(input_dir)
       ARGV.map do |arg|
         nome = arg.end_with?('.txt') ? arg : "#{arg}.txt"
@@ -44,15 +57,18 @@ module Bddgenx
     end
 
     ##
-    # Interface interativa para o usuário selecionar arquivos `.txt` a processar.
-    # Exibe uma lista dos arquivos disponíveis e solicita um número ao usuário.
+    # Modo interativo para o usuário escolher o arquivo `.txt` a ser processado.
     #
-    # @param input_dir [String] Diretório de entrada
-    # @return [Array<String>] Lista com o arquivo escolhido ou todos
+    # Exibe uma lista numerada com os arquivos disponíveis no diretório.
+    # O usuário pode selecionar um específico ou pressionar ENTER para todos.
+    #
+    # @param input_dir [String] Caminho do diretório com arquivos `.txt`
+    # @return [Array<String>] Arquivo selecionado ou todos disponíveis
     def self.choose_input(input_dir)
       files = Dir.glob(File.join(input_dir, '*.txt'))
       if files.empty?
-        warn "❌ Não há arquivos .txt no diretório #{input_dir}"; exit 1
+        warn "❌ Não há arquivos .txt no diretório #{input_dir}"
+        exit 1
       end
 
       puts "Selecione o arquivo de história para processar:"
@@ -63,20 +79,24 @@ module Bddgenx
       return files if choice.empty?
       idx = choice.to_i - 1
       unless idx.between?(0, files.size - 1)
-        warn "❌ Escolha inválida."; exit 1
+        warn "❌ Escolha inválida."
+        exit 1
       end
       [files[idx]]
     end
 
     ##
-    # Executa o fluxo completo de geração BDD:
-    # - Define o modo (static / IA)
-    # - Coleta arquivos de entrada
-    # - Valida as histórias
-    # - Gera arquivos `.feature` e `steps`
-    # - Exporta PDFs e faz backup de versões antigas
+    # Executa o fluxo principal de geração dos artefatos BDD.
     #
-    # O modo de execução é lido da variável de ambiente `BDDGENX_MODE`.
+    # Etapas executadas:
+    # - Detecta o modo de execução via ENV['BDDGENX_MODE'] (static/chatgpt/gemini/copilot)
+    # - Carrega e valida histórias de usuário
+    # - Gera arquivos `.feature` e seus respectivos steps
+    # - Executa geração via IA (quando aplicável)
+    # - Exporta arquivos em PDF
+    # - Gera rastreabilidade via CSV
+    #
+    # Exibe no final um resumo das operações executadas.
     #
     # @return [void]
     def self.execute
@@ -90,7 +110,7 @@ module Bddgenx
         exit 1
       end
 
-      # Contadores de geração
+      # Contadores
       total = features = steps = ignored = 0
       skipped_steps = []
       generated_pdfs = []
@@ -103,23 +123,22 @@ module Bddgenx
         historia = Parser.ler_historia(arquivo)
         idioma = Utils.obter_idioma_do_arquivo(arquivo) || historia[:idioma]
         historia[:idioma] = idioma
+
         unless Validator.validar(historia)
           ignored += 1
           puts "❌ #{I18n.t('messages.invalid_story')}: #{arquivo}"
           next
         end
 
-        # Geração via IA (ChatGPT, Gemini)
-        if %w[gemini chatgpt].include?(modo)
+        # IA: geração de cenários com Gemini, ChatGPT ou Copilot
+        if %w[gemini chatgpt copilot].include?(modo)
           puts I18n.t('messages.start_ia', modo: modo.capitalize)
-          idioma = Utils.obter_idioma_do_arquivo(arquivo) || historia[:idioma]
 
           feature_text = Support::Loader.run(I18n.t('messages.ia_waiting'), :default) do
             case modo
-            when 'gemini'
-              IA::GeminiCliente.gerar_cenarios(historia, idioma)
-            when 'chatgpt'
-              IA::ChatGptCliente.gerar_cenarios(historia, idioma)
+            when 'gemini' then IA::GeminiCliente.gerar_cenarios(historia, idioma)
+            when 'chatgpt' then IA::ChatGptCliente.gerar_cenarios(historia, idioma)
+            when 'copilot' then IA::MicrosoftCopilotCliente.gerar_cenarios(historia, idioma)
             end
           end
 
@@ -139,7 +158,9 @@ module Bddgenx
           end
         end
 
+        # Salva versão antiga se existir
         Backup.salvar_versao_antiga(feature_path)
+
         features += 1 if Generator.salvar_feature(feature_path, feature_content)
 
         if StepsGenerator.gerar_passos(feature_path)
@@ -150,6 +171,8 @@ module Bddgenx
 
         FileUtils.mkdir_p('reports')
         result = PDFExporter.exportar_todos(only_new: true)
+        Tracer.adicionar_entrada(historia, feature_path)
+
         generated_pdfs.concat(result[:generated])
         skipped_pdfs.concat(result[:skipped])
       end

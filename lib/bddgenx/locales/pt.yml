@@ -29,6 +29,7 @@ pt:
     gemini_error: "❌ Erro ao chamar Gemini: %{code} - %{body}"
     chatgpt_key_missing: "❌ API Key do ChatGPT não encontrada no .env (OPENAI_API_KEY)"
     openai_quota: "❌ Limite de uso da API OpenAI excedido."
+    microsoft_copilot_error: "Erro"
     openai_check_usage: "🔗 Verifique sua conta: https://platform.openai.com/account/usage"
     feature_not_found: "⚠️ Feature não encontrada: %{feature}"
     pdf_generation_failed: "❌ Erro ao gerar PDF de %{file}: %{error}"

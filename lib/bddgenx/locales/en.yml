@@ -28,6 +28,7 @@ en:
     ia_no_content: "❌ No content returned from AI"
     gemini_error: "❌ Error calling Gemini: %{code} - %{body}"
     chatgpt_key_missing: "❌ ChatGPT API key not found in .env (OPENAI_API_KEY)"
+    microsoft_copilot_error: "Erro"
     openai_quota: "❌ OpenAI API quota exceeded."
     openai_check_usage: "🔗 Check your usage: https://platform.openai.com/account/usage"
     feature_not_found: "⚠️ Feature not found: %{feature}"

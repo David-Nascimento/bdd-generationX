@@ -183,5 +183,46 @@ module Bddgenx
       puts "- #{I18n.t('messages.features_generated')}: #{features}"
       puts "- #{I18n.t('messages.steps_generated')}:    #{steps}"
     end
+
+    # Gera cenários a partir do texto da história (string)
+    #
+    # @param text [String] Descrição da história ou requisito
+    # @param language [String] Código do idioma (default: 'pt')
+    # @return [String, nil] Conteúdo do arquivo feature gerado ou nil se erro
+    def self.generate_from_text(text, language: 'pt')
+      return nil if text.nil? || text.strip.empty?
+
+      # Monta o hash de história simulando o retorno de Parser.ler_historia
+      historia = {
+        descricao: text,
+        idioma: language
+      }
+
+      modo = ENV['BDDGENX_MODE'] || 'static'
+
+      feature_content = nil
+
+      if %w[gemini chatgpt copilot].include?(modo)
+        feature_content = Support::Loader.run("Gerando via IA...", :default) do
+          case modo
+          when 'gemini'
+            IA::GeminiCliente.gerar_cenarios(historia, language)
+          when 'chatgpt'
+            IA::ChatGptCliente.gerar_cenarios(historia, language)
+          when 'copilot'
+            IA::MicrosoftCopilotCliente.gerar_cenarios(historia, language)
+          end
+        end
+      else
+        feature_content = Support::Loader.run("Gerando localmente...", :dots) do
+          Generator.gerar_feature(historia)
+        end
+      end
+
+      feature_content ? Utils.limpar(feature_content) : nil
+    rescue StandardError => e
+      warn "Erro ao gerar feature: #{e.message}"
+      nil
+    end
   end
 end

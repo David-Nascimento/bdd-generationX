@@ -15,7 +15,7 @@
 # - BDDGENX_MODE (static, chatgpt, gemini, copilot)
 # - BDDGENX_LANG (pt, en)
 
-require_relative '../../bddgenx'
+# require_relative '../../bddgenx'
 
 module Bddgenx
   # Classe principal de execução da gem BDDGenX.

@@ -1,4 +1,5 @@
 require_relative 'env'
+
 # Carrega o arquivo 'env.rb' relativo a este script. Geralmente contém configurações e carregamento da gem Bddgenx.
 
 ## Evita warns na saida do console
